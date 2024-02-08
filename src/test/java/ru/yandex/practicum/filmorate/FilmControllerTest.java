@@ -1,16 +1,15 @@
 package ru.yandex.practicum.filmorate;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
 
-@SpringBootTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class FilmControllerTest {
 
     private final FilmController filmController = new FilmController();
@@ -18,23 +17,23 @@ public class FilmControllerTest {
             .id(1)
             .name("Фильм")
             .description("Описание")
-            .releaseDate(LocalDate.of(2023, 02, 14))
+            .releaseDate(LocalDate.of(2023, 2, 14))
             .duration(95)
             .build();
 
     @Test
     void whenAllGood_shouldAddFilm() {
-        Film newFilm = Film.builder()
+        Film expected = Film.builder()
                 .id(1)
                 .name("Фильм")
                 .description("Описание")
-                .releaseDate(LocalDate.of(2023, 02, 14))
+                .releaseDate(LocalDate.of(2023, 2, 14))
                 .duration(95)
                 .build();
 
-        filmController.create(newFilm);
+        filmController.create(film);
 
-        assertEquals(newFilm, film);
+        assertEquals(expected, film);
         assertEquals(1, filmController.getFilms().size());
     }
 
@@ -43,14 +42,14 @@ public class FilmControllerTest {
         Film newFilm = Film.builder()
                 .name("Фильм")
                 .description("Описание")
-                .releaseDate(LocalDate.of(2023, 02, 14))
+                .releaseDate(LocalDate.of(2023, 2, 14))
                 .duration(95)
                 .build();
 
-        Film addedFilm = filmController.create(newFilm);
+        Film createdFilm = filmController.create(newFilm);
 
         Film updateFilm = Film.builder()
-                .id(addedFilm.getId())
+                .id(createdFilm.getId())
                 .name("Фильм1")
                 .description("Описание1")
                 .releaseDate(LocalDate.of(2022, 2, 1))
@@ -60,7 +59,7 @@ public class FilmControllerTest {
         Film updatedFilm = filmController.update(updateFilm);
 
         assertEquals("Описание1", updatedFilm.getDescription());
-        assertEquals(addedFilm.getId(), updatedFilm.getId());
+        assertEquals(createdFilm.getId(), updatedFilm.getId());
         assertEquals(1, filmController.getFilms().size());
     }
 

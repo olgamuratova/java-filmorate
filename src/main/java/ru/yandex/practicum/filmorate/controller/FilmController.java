@@ -25,7 +25,7 @@ public class FilmController {
 
     @PostMapping(value = "/films")
     public Film create(@Valid @RequestBody Film film) {
-        filmValidation(film);
+        validateFilm(film);
         film.setId(id++);
         films.put(film.getId(), film);
         log.info("Добавление фильма {} с идентификатором {}", film.getName(), film.getId());
@@ -37,7 +37,7 @@ public class FilmController {
         if (!films.containsKey(film.getId())) {
             throw new ValidationException("Неизвестный фильм");
         }
-        filmValidation(film);
+        validateFilm(film);
         films.put(film.getId(), film);
         log.info("Обновление фильма {} с идентификатором {}", film.getName(), film.getId());
         return film;
@@ -49,7 +49,7 @@ public class FilmController {
         return new ArrayList<>(films.values());
     }
 
-    private void filmValidation(Film film) {
+    private void validateFilm(Film film) {
         if (film.getName().isEmpty()) {
             throw new ValidationException("Название не может быть пустым");
         }

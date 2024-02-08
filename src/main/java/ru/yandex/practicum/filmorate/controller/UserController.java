@@ -25,7 +25,7 @@ public class UserController {
 
     @PostMapping(value = "/users")
     public User create(@Valid @RequestBody User user) {
-        userValidation(user);
+        validateUser(user);
         user.setId(id++);
         users.put(user.getId(), user);
         log.info("Создание пользователя {} с идентификатором {}", user.getEmail(), user.getId());
@@ -37,7 +37,7 @@ public class UserController {
         if (!users.containsKey(user.getId())) {
             throw new ValidationException("Неизвестный пользователь");
         }
-        userValidation(user);
+        validateUser(user);
         users.put(user.getId(), user);
         log.info("Обновление пользователя {} с идентификатором {}", user.getLogin(), user.getId());
         return user;
@@ -49,7 +49,7 @@ public class UserController {
         return new ArrayList<>(users.values());
     }
 
-    private void userValidation(User user) {
+    private void validateUser(User user) {
         if (user.getEmail().isBlank() || !user.getEmail().contains("@")) {
             throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
         }

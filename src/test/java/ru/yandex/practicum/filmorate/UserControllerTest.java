@@ -1,16 +1,15 @@
 package ru.yandex.practicum.filmorate;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 
-@SpringBootTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class UserControllerTest {
 
     private final UserController userController = new UserController();
@@ -24,7 +23,7 @@ public class UserControllerTest {
 
     @Test
     void whenAllGood_shouldCreateUser() {
-        User newUser = User.builder()
+        User expected = User.builder()
                 .id(1)
                 .email("name@gmail.com")
                 .login("user")
@@ -32,9 +31,9 @@ public class UserControllerTest {
                 .birthday(LocalDate.of(2002, 1, 1))
                 .build();
 
-        userController.create(newUser);
+        userController.create(user);
 
-        assertEquals(newUser, user);
+        assertEquals(expected, user);
         assertEquals(1, userController.getUsers().size());
     }
 
@@ -87,7 +86,6 @@ public class UserControllerTest {
 
     @Test
     void whenNameIsEmpty_shouldCreateUser() {
-
         User newUser = User.builder()
                 .email("name@mail.com")
                 .login("user")
