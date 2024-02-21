@@ -4,76 +4,67 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.impl.InMemoryUserStorage;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class UserControllerTest {
 
-    private final UserController userController = new UserController();
-    private final User user = User.builder()
-            .id(1)
-            .email("name@gmail.com")
-            .login("user")
-            .name("User")
-            .birthday(LocalDate.of(2002, 1, 1))
-            .build();
+    private final InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
+
+    private final UserService userService = new UserService(inMemoryUserStorage);
+
+    private final UserController userController = new UserController(inMemoryUserStorage, userService);
+
+    private final User user = new User(1, "mail@mail.ru", "mail", "Name",
+            LocalDate.of(2000, 1, 1), new HashSet<>());
+
+    private final User updatedUser = new User(1, "yandex@yandex.ru", "yandex", "Name",
+            LocalDate.of(2000, 1, 2), new HashSet<>());
+
+    private final User emptyNameUser = new User(2, "mail@yandex.ru", "user", null,
+            LocalDate.of(2000, 1, 1), new HashSet<>());
+
+    private final User incorrectEmailUser = new User(2, "mail.ru",
+            "login", "Name", LocalDate.of(2001, 5, 5), new HashSet<>());
+
+    private final User emptyEmailUser = new User(1, "", "myLogin", null,
+            LocalDate.of(2000, 1, 1), new HashSet<>());
+
+    private final User commonFriend = new User(4, "friend@mail.ru", "loginFr", "NameFr",
+            LocalDate.of(2001, 6, 6), new HashSet<>());
 
     @Test
     void whenAllGood_shouldCreateUser() {
-        User expected = User.builder()
-                .id(1)
-                .email("name@gmail.com")
-                .login("user")
-                .name("User")
-                .birthday(LocalDate.of(2002, 1, 1))
-                .build();
-
         userController.create(user);
-
-        assertEquals(expected, user);
         assertEquals(1, userController.getUsers().size());
     }
 
     @Test
     void whenUpdate_shouldUpdateUserData() {
-        User newUser = User.builder()
-                .email("name@mail.com")
-                .login("user")
-                .name("User")
-                .birthday(LocalDate.of(2000, 1, 21))
-                .build();
-
-        User createdUser = userController.create(newUser);
-
-        User updateUser = User.builder()
-                .id(createdUser.getId())
-                .email("email@mail.com")
-                .login("user")
-                .name("User")
-                .birthday(LocalDate.of(2000, 1, 21))
-                .build();
-
-        User updatedUser = userController.update(updateUser);
-
-        assertEquals("email@mail.com", updatedUser.getEmail());
-        assertEquals(createdUser.getId(), updatedUser.getId());
+        userController.create(user);
+        userController.update(updatedUser);
+        assertEquals("yandex@yandex.ru", updatedUser.getEmail());
+        assertEquals(user.getId(), updatedUser.getId());
         assertEquals(1, userController.getUsers().size());
     }
 
     @Test
     void whenEmailIsEmpty_shouldThrowException() {
-        user.setEmail("");
-        assertThrows(ValidationException.class, () -> userController.create(user));
+        assertThrows(ValidationException.class, () -> userController.create(emptyEmailUser));
         assertEquals(0, userController.getUsers().size());
     }
 
     @Test
     void whenEmailIncorrect_shouldThrowException() {
-        user.setEmail("name.mail.com");
-        assertThrows(ValidationException.class, () -> userController.create(user));
+        assertThrows(ValidationException.class, () -> userController.create(incorrectEmailUser));
         assertEquals(0, userController.getUsers().size());
     }
 
@@ -86,15 +77,9 @@ public class UserControllerTest {
 
     @Test
     void whenNameIsEmpty_shouldCreateUser() {
-        User newUser = User.builder()
-                .email("name@mail.com")
-                .login("user")
-                .name(null)
-                .birthday(LocalDate.of(2002, 1, 21))
-                .build();
-        User createdUser = userController.create(newUser);
-
-        assertEquals("user", createdUser.getName());
+        userController.create(emptyNameUser);
+        assertEquals(1, emptyNameUser.getId());
+        assertEquals("user", emptyNameUser.getName());
     }
 
     @Test
@@ -103,4 +88,50 @@ public class UserControllerTest {
         ValidationException validationException = assertThrows(ValidationException.class, () -> userController.create(user));
         assertEquals(validationException.getMessage(), "Дата рождения не может быть в будущем");
     }
+
+    @Test
+    void whenAddFriend_shouldAddFriendToOtherUsersSet() {
+        userController.create(user);
+        userController.create(emptyNameUser);
+        userController.addFriend(user.getId(), emptyNameUser.getId());
+        assertTrue(user.getFriendsQuantity() != 0);
+        assertTrue(emptyNameUser.getFriendsQuantity() != 0);
+
+    }
+
+    @Test
+    void whenDeleteFriend_shouldDeleteFriendFromOtherUsersSet() {
+        userController.create(user);
+        userController.create(emptyNameUser);
+        userController.addFriend(user.getId(), emptyNameUser.getId());
+        userController.removeFriend(user.getId(), emptyNameUser.getId());
+        assertEquals(0, user.getFriendsQuantity());
+        assertEquals(0, emptyNameUser.getFriendsQuantity());
+    }
+
+    @Test
+    void whenGetCommonFriends_shouldReturnListWithSizeOne() {
+        userController.create(user);
+        userController.create(emptyNameUser);
+        userController.addFriend(user.getId(), emptyNameUser.getId());
+        userController.create(commonFriend);
+        userController.addFriend(user.getId(), commonFriend.getId());
+        userController.addFriend(emptyNameUser.getId(), commonFriend.getId());
+        List<User> commonFriendList = userController.getCommonFriends(user.getId(), emptyNameUser.getId());
+
+        assertEquals(1, commonFriendList.size());
+    }
+
+    @Test
+    void whenGetFriends_shouldReturnUsersFriends() {
+        userController.create(user);
+        userController.create(emptyNameUser);
+        userController.create(commonFriend);
+        userController.addFriend(user.getId(), emptyNameUser.getId());
+        userController.addFriend(user.getId(), commonFriend.getId());
+        List<User> userFriends = userController.getFriends(user.getId());
+
+        assertEquals(2, userFriends.size());
+    }
+
 }

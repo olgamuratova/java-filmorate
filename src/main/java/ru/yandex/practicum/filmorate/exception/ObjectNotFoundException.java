@@ -3,11 +3,10 @@ package ru.yandex.practicum.filmorate.exception;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ValidationException extends IllegalArgumentException {
+public class ObjectNotFoundException extends IllegalArgumentException {
 
-    public ValidationException(String message) {
+    public ObjectNotFoundException(final String message) {
         super(message);
         log.error(message);
     }
 }
-
