@@ -6,13 +6,15 @@ import ru.yandex.practicum.filmorate.exception.InternalServiceException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.FilmStorage;
+import ru.yandex.practicum.filmorate.db.FilmStorage;
+import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -56,6 +58,41 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new ObjectNotFoundException("Фильм с id не найден");
         }
         return film;
+    }
+
+    @Override
+    public void addLike(Integer filmId, Integer userId) {
+
+    }
+
+    @Override
+    public void deleteLike(Integer filmId, Integer userId) {
+
+    }
+
+    @Override
+    public Integer getLikesQuantity(Film film) {
+        return film.getLikesQuantity();
+    }
+
+    @Override
+    public void addGenres(int filmId, Set<Genre> genres) {
+
+    }
+
+    @Override
+    public void updateGenres(int filmId, Set<Genre> genres) {
+
+    }
+
+    @Override
+    public Set<Genre> getGenres(int filmId) {
+        return null;
+    }
+
+    @Override
+    public void deleteGenres(int filmId) {
+
     }
 
     private void validateFilm(Film film) {
