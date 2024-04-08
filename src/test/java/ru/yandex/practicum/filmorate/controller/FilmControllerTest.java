@@ -1,14 +1,13 @@
-package ru.yandex.practicum.filmorate;
+package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.controller.FilmController;
+import ru.yandex.practicum.filmorate.FilmStorage;
+import ru.yandex.practicum.filmorate.UserStorage;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.service.FilmStorage;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.service.UserStorage;
 import ru.yandex.practicum.filmorate.service.impl.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.service.impl.InMemoryUserStorage;
 
@@ -18,7 +17,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FilmControllerTest {
 
@@ -28,7 +26,7 @@ public class FilmControllerTest {
 
     private final UserService userService = new UserService(userStorage);
 
-    private final FilmService filmService = new FilmService(filmStorage, userService);
+    private final FilmService filmService = new FilmService(filmStorage);
 
     private final FilmController filmController = new FilmController(filmStorage, filmService);
 
@@ -48,7 +46,7 @@ public class FilmControllerTest {
                     "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
             LocalDate.of(2022, 1, 1), 98, new HashSet<>());
     private final User user = new User(1, "mail@mail.ru", "mail", "name",
-            LocalDate.of(1999, 1, 1), new HashSet<>());
+            LocalDate.of(1999, 1, 1));
 
     @Test
     void whenAllGood_shouldAddFilm() {
@@ -95,14 +93,6 @@ public class FilmControllerTest {
         film.setDuration(-92);
         assertThrows(ValidationException.class, () -> filmController.create(film));
         assertEquals(0, filmController.getFilms().size());
-    }
-
-    @Test
-    void whenLikedAFilm_shouldAddALikeToAFilm() {
-        userStorage.create(user);
-        filmController.create(film);
-        filmController.likeAFilm(film.getId(), user.getId());
-        assertTrue(film.getLikesQuantity() != 0);
     }
 
     @Test

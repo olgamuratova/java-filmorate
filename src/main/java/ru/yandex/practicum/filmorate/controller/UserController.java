@@ -1,8 +1,9 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.service.UserStorage;
+import ru.yandex.practicum.filmorate.UserStorage;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -21,14 +22,18 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/users")
-@RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
     private final UserStorage userStorage;
 
-    @Autowired
     private final UserService userService;
+
+    @Autowired
+    public UserController(@Qualifier("userDbStorage")UserStorage userStorage,
+                          UserService userService) {
+        this.userStorage = userStorage;
+        this.userService = userService;
+    }
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
@@ -51,8 +56,9 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getFriends(@PathVariable Integer id) {
-        return userService.getFriends(id);
+    public ResponseEntity<List<User>> getFriends(@PathVariable Integer id) {
+        List<User> friends = userService.getFriends(id);
+        return ResponseEntity.ok(friends);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")

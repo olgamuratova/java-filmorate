@@ -5,13 +5,14 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserStorage;
+import ru.yandex.practicum.filmorate.UserStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -48,17 +49,27 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Map<Integer, User> getUsersMap() {
-        return null;
-    }
-
-    @Override
     public User getById(Integer id) {
         User user = users.get(id);
         if (user == null) {
             throw new ObjectNotFoundException("Пользователь с id не найден");
         }
         return user;
+    }
+
+    @Override
+    public void addFriend(Integer userId, Integer friendId) {
+
+    }
+
+    @Override
+    public void deleteFriend(Integer userId, Integer friendId) {
+
+    }
+
+    @Override
+    public Set<Integer> getFriends(Integer userId) {
+        return null;
     }
 
     private void validateUser(User user) {

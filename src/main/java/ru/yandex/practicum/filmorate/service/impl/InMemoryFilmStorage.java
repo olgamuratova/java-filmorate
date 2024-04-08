@@ -2,11 +2,12 @@ package ru.yandex.practicum.filmorate.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.FilmStorage;
 import ru.yandex.practicum.filmorate.exception.InternalServiceException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.FilmStorage;
+import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -56,6 +57,41 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new ObjectNotFoundException("Фильм с id не найден");
         }
         return film;
+    }
+
+    @Override
+    public void addLike(Integer filmId, Integer userId) {
+
+    }
+
+    @Override
+    public void deleteLike(Integer filmId, Integer userId) {
+
+    }
+
+    @Override
+    public Integer getLikesQuantity(Film film) {
+        return film.getLikesQuantity();
+    }
+
+    @Override
+    public void addGenres(int filmId, List<Genre> genres) {
+
+    }
+
+    @Override
+    public void updateGenres(int filmId, List<Genre> genres) {
+
+    }
+
+    @Override
+    public List<Genre> getGenres(int filmId) {
+        return null;
+    }
+
+    @Override
+    public void deleteGenres(int filmId) {
+
     }
 
     private void validateFilm(Film film) {
