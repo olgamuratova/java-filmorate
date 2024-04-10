@@ -14,6 +14,7 @@ import java.util.List;
 @RequestMapping("/directors")
 public class DirectorController {
     DirectorStorage directorStorage;
+
     @Autowired
     DirectorController(DirectorStorage directorStorage) {
         this.directorStorage = directorStorage;
