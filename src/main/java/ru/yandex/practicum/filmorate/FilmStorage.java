@@ -28,4 +28,6 @@ public interface FilmStorage {
     List<Genre> getGenres(int filmId);
 
     void deleteGenres(int filmId);
+
+    List<Film> getRecommendedFilms(int userId);
 }
