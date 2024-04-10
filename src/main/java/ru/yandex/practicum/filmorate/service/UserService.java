@@ -20,7 +20,7 @@ public class UserService {
     private final FilmStorage filmStorage;
 
     @Autowired
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FilmStorage filmStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, @Qualifier("filmDbStorage") FilmStorage filmStorage) {
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
     }
@@ -55,8 +55,7 @@ public class UserService {
         return userStorage;
     }
 
-    public List<Film> getFilmRecommendations(Integer id){
-//        User user = userStorage.getById(id);////
+    public List<Film> getFilmRecommendations(Integer id) {
         return filmStorage.getRecommendedFilms(id);
 
     }

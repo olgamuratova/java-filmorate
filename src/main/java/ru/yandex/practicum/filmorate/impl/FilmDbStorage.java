@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -19,7 +18,6 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Primary
 @Component
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
