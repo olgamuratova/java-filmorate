@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.FilmStorage;
 import ru.yandex.practicum.filmorate.exception.InternalServiceException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
@@ -91,6 +92,31 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public void deleteGenres(int filmId) {
+
+    }
+
+    @Override
+    public List<Film> getFilmsOfDirector(Integer directorId, String[] sortBy) {
+        return null;
+    }
+
+    @Override
+    public void addDirectors(int filmId, List<Director> directors) {
+
+    }
+
+    @Override
+    public void updateDirectors(int filmId, List<Director> directors) {
+
+    }
+
+    @Override
+    public List<Director> getDirectors(int filmId) {
+        return null;
+    }
+
+    @Override
+    public void deleteDirectors(int filmId) {
 
     }
 

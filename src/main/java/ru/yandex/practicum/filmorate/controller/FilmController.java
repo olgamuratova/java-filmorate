@@ -60,6 +60,11 @@ public class FilmController {
         return filmService.getPopularFilms(count);
     }
 
+    @GetMapping("/director/{directorId}")
+    public List<Film> getFilmsOfDirector(@PathVariable Integer directorId, @RequestParam String[] sortBy) {
+        return filmStorage.getFilmsOfDirector(directorId, sortBy);
+    }
+
     @PutMapping("/{id}/like/{userId}")
     public void likeAFilm(@PathVariable Integer id, @PathVariable Integer userId) {
         filmService.addLike(id, userId);
