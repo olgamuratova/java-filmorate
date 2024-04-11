@@ -39,4 +39,6 @@ public interface FilmStorage {
     List<Director> getDirectors(int filmId);
 
     void deleteDirectors(int filmId);
+
+    List<Film> getRecommendedFilms(int userId);
 }

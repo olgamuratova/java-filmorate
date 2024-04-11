@@ -17,10 +17,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -127,7 +124,7 @@ public class FilmDbStorage implements FilmStorage {
                     mpa,
                     result.getString("name"),
                     result.getString("description"),
-                    result.getDate("release_date").toLocalDate(),
+                    Objects.requireNonNull(result.getDate("release_date")).toLocalDate(),
                     result.getInt("duration")
             );
             film.setGenres(getGenres(id));
@@ -150,7 +147,6 @@ public class FilmDbStorage implements FilmStorage {
         if (jdbcTemplate.update(query, filmId, userId) == 0) {
             throw new ObjectNotFoundException("Не найдено");
         }
-
     }
 
     @Override
@@ -254,6 +250,21 @@ public class FilmDbStorage implements FilmStorage {
     public void deleteDirectors(int filmId) {
         jdbcTemplate.update("DELETE FROM film_director WHERE film_id=?", filmId);
     }
+
+    @Override
+    public List<Film> getRecommendedFilms(int userId) {
+
+        String query = "SELECT FILMS.*, RATING.*\n" + "FROM FILMS\n" + "         JOIN FILM_MPA AS RATING ON RATING.MPA_ID = FILMS.MPA_ID\n" + "WHERE FILMS.FILM_ID IN (SELECT DISTINCT FILM_ID\n" + "                        FROM LIKES\n" + "                        WHERE USER_ID IN (SELECT USER_ID\n" + "                                          FROM ( SELECT USER_ID, COUNT(*) MATCHES\n" + "                                                 FROM LIKES\n" + "                                                 WHERE NOT USER_ID = ?\n" + "                                                   AND FILM_ID IN (SELECT FILM_ID FROM LIKES WHERE USER_ID = ?)\n" + "                                                 GROUP BY USER_ID\n" + "                                                 ORDER BY COUNT(*) DESC ) as UIM\n" + "                                          GROUP BY USER_ID\n" + "                                          HAVING MATCHES = MAX(MATCHES))\n" + "                          AND FILM_ID NOT IN (SELECT FILM_ID FROM LIKES WHERE USER_ID = ?))";
+
+        List<Film> result = jdbcTemplate.query(query, new FilmMapper(), userId, userId, userId);
+        for (Film film : result) {
+            Mpa mpa = mpaDbStorage.getById(film.getMpa().getId());
+            film.setMpa(mpa);
+            film.setGenres(getGenres(film.getId()));
+        }
+        return result;
+    }
+
 
     private boolean isContains(Integer id) {
         try {
