@@ -18,6 +18,22 @@ import java.util.List;
 public class ReviewController {
     private final ReviewService reviewService;
 
+    @PostMapping
+    public Review addReview(@Valid @RequestBody Review review) {
+        return reviewService.addReview(review);
+    }
+
+
+    @PutMapping
+    public Review updateReview(@Valid @RequestBody Review review) {
+        return reviewService.updateReview(review);
+    }
+
+    @GetMapping("/{id}")
+    public Review getReviewById(@PathVariable long id) throws ObjectNotFoundException {
+        return reviewService.getReviewById(id);
+    }
+
     @GetMapping
     public List<Review> getFilmsReviews(@RequestParam(required = false) @Positive Long filmId,
                                         @RequestParam(defaultValue = "10", required = false) @Positive int count) {
@@ -26,21 +42,6 @@ public class ReviewController {
         } else {
             return reviewService.getReviewsByFilmId(filmId, count);
         }
-    }
-
-    @GetMapping("/{id}")
-    public Review getReviewById(@PathVariable long id) throws ObjectNotFoundException {
-        return reviewService.getReviewById(id);
-    }
-
-    @PostMapping
-    public Review addReview(@Valid @RequestBody Review review) {
-        return reviewService.addReview(review);
-    }
-
-    @PutMapping
-    public Review updateReview(@Valid @RequestBody Review review) {
-        return reviewService.updateReview(review);
     }
 
     @DeleteMapping("/{id}")

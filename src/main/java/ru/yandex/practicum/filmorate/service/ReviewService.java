@@ -21,12 +21,6 @@ public class ReviewService {
     private final InMemoryFilmStorage inMemoryFilmStorage;
     private final InMemoryUserStorage inMemoryUserStorage;
 
-
-
-    public Review getReviewById(long id) {
-        return reviewStorage.getReviewById(id);
-    }
-
     public Review addReview(Review review) {
         inMemoryFilmStorage.getById(Math.toIntExact(review.getFilmId()));
         inMemoryUserStorage.getById(Math.toIntExact(review.getUserId()));
@@ -36,6 +30,10 @@ public class ReviewService {
     public Review updateReview(Review review) {
         getReviewById(review.getReviewId());
         return reviewStorage.updateReview(review);
+    }
+
+    public Review getReviewById(long id) {
+        return reviewStorage.getReviewById(id);
     }
 
     public void deleteReviewById(long id) {

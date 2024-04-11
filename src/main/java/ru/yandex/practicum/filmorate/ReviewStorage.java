@@ -6,13 +6,13 @@ import java.util.List;
 
 public interface ReviewStorage {
 
-    List<Review> getAll();
-
-    Review getReviewById(long id);
-
     Review addReview(Review review);
 
     Review updateReview(Review review);
+
+    Review getReviewById(long id);
+
+    List<Review> getAll();
 
     void deleteReviewById(long id);
 
