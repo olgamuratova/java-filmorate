@@ -6,11 +6,12 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.FilmStorage;
-import ru.yandex.practicum.filmorate.exception.InternalServiceException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.mapper.DirectorMapper;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.mapper.GenreMapper;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -31,6 +32,8 @@ public class FilmDbStorage implements FilmStorage {
     private final MpaDbStorage mpaDbStorage;
 
     private final GenreDbStorage genreDbStorage;
+
+    private final DirectorDbStorage directorDbStorage;
 
     @Override
     public Film create(Film film) {
@@ -58,6 +61,12 @@ public class FilmDbStorage implements FilmStorage {
             addGenres(film.getId(), genres);
             film.setGenres(getGenres(film.getId()));
         }
+
+        List<Director> directors = film.getDirectors();
+        if (directors != null && !directors.isEmpty()) {
+            addDirectors(film.getId(), directors);
+            film.setDirectors(getDirectors(film.getId()));
+        }
         return film;
     }
 
@@ -65,7 +74,8 @@ public class FilmDbStorage implements FilmStorage {
     public Film update(Film film) {
         checkIfExists(film, false);
         validateFilm(film);
-        String query = "UPDATE films set name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? WHERE film_id = ?";
+        String query = "UPDATE films set name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? " +
+                "WHERE film_id = ?";
         jdbcTemplate.update(query, film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
@@ -76,7 +86,20 @@ public class FilmDbStorage implements FilmStorage {
         if (genres != null && !genres.isEmpty()) {
             updateGenres(film.getId(), genres);
             film.setGenres(getGenres(film.getId()));
+        } else {
+            deleteGenres(film.getId());
+            film.setGenres(new ArrayList<>());
         }
+
+        List<Director> directors = film.getDirectors();
+        if (directors != null && !directors.isEmpty()) {
+            updateDirectors(film.getId(), directors);
+            film.setDirectors(getDirectors(film.getId()));
+        } else {
+            deleteDirectors(film.getId());
+            film.setDirectors(new ArrayList<>());
+        }
+
         return film;
     }
 
@@ -88,6 +111,7 @@ public class FilmDbStorage implements FilmStorage {
             Mpa mpa = mpaDbStorage.getById(film.getMpa().getId());
             film.setMpa(mpa);
             film.setGenres(getGenres(film.getId()));
+            film.setDirectors(getDirectors(film.getId()));
         }
         return result;
     }
@@ -107,6 +131,7 @@ public class FilmDbStorage implements FilmStorage {
                     result.getInt("duration")
             );
             film.setGenres(getGenres(id));
+            film.setDirectors(getDirectors(id));
             return film;
         }
         throw new ObjectNotFoundException("Фильм с id не найден");
@@ -121,7 +146,11 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void deleteLike(Integer filmId, Integer userId) {
         String query = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
-        jdbcTemplate.update(query, filmId, userId);
+
+        if (jdbcTemplate.update(query, filmId, userId) == 0) {
+            throw new ObjectNotFoundException("Не найдено");
+        }
+
     }
 
     @Override
@@ -157,6 +186,75 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update("DELETE FROM film_genre WHERE film_id=?", filmId);
     }
 
+    @Override
+    public List<Film> getFilmsOfDirector(Integer directorId, String[] sortBy) {
+        if (directorDbStorage.isContains(directorId)) {
+            if (sortBy[0].equals("likes")) {
+                String query = "SELECT f.* " +
+                        "FROM films AS f " +
+                        "LEFT OUTER JOIN (SELECT COUNT(user_id), film_id FROM likes GROUP BY film_id " +
+                        "ORDER BY COUNT(user_id)) AS l ON f.film_id = l.film_id " +
+                        "LEFT OUTER JOIN film_director AS fd ON f.film_id = fd.film_id " +
+                        "LEFT OUTER JOIN director AS d ON fd.director_id = d.director_id " +
+                        "WHERE fd.director_id = ? ";
+
+                List<Film> result = jdbcTemplate.query(query, new FilmMapper(), directorId);
+                for (Film film : result) {
+                    Mpa mpa = mpaDbStorage.getById(film.getMpa().getId());
+                    film.setMpa(mpa);
+                    film.setGenres(getGenres(film.getId()));
+                    film.setDirectors(getDirectors(film.getId()));
+                }
+                return result;
+            }
+
+            if (sortBy[0].equals("year")) {
+                String query = "SELECT * " +
+                        "FROM films AS f " +
+                        "LEFT OUTER JOIN film_director AS fd ON f.film_id = fd.film_id " +
+                        "WHERE fd.director_id = ? " +
+                        "ORDER BY f.release_date";
+                List<Film> result = jdbcTemplate.query(query, new FilmMapper(), directorId);
+                for (Film film : result) {
+                    Mpa mpa = mpaDbStorage.getById(film.getMpa().getId());
+                    film.setMpa(mpa);
+                    film.setGenres(getGenres(film.getId()));
+                    film.setDirectors(getDirectors(film.getId()));
+                }
+                return result;
+            }
+        }
+        throw new ObjectNotFoundException("Ошибка");
+    }
+
+    @Override
+    public void addDirectors(int filmId, List<Director> directors) {
+        for (Director director : directors) {
+            jdbcTemplate.update("INSERT INTO film_director (film_id, director_id) VALUES (?, ?)", filmId,
+                    director.getId());
+        }
+    }
+
+    @Override
+    public void updateDirectors(int filmId, List<Director> directors) {
+        deleteDirectors(filmId);
+        addDirectors(filmId, directors);
+    }
+
+    @Override
+    public List<Director> getDirectors(int filmId) {
+        List<Director> directors = new ArrayList<>(jdbcTemplate.query(
+                "SELECT f.director_id, d.director_name FROM film_director AS f " +
+                        "LEFT OUTER JOIN director AS d ON f.director_id = d.director_id WHERE f.film_id = ?",
+                new DirectorMapper(), filmId));
+        return directors.stream().distinct().collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteDirectors(int filmId) {
+        jdbcTemplate.update("DELETE FROM film_director WHERE film_id=?", filmId);
+    }
+
     private boolean isContains(Integer id) {
         try {
             getById(id);
@@ -172,7 +270,7 @@ public class FilmDbStorage implements FilmStorage {
                 throw new ValidationException("Фильм уже существует");
             }
         } else if (film.getId() != null && !isContains(film.getId())) {
-            throw new InternalServiceException("Фильм не существует");
+            throw new ObjectNotFoundException("Фильм не найден");
         }
         if (film.getMpa() != null) {
             if (!mpaDbStorage.isContains(film.getMpa().getId())) {
@@ -186,6 +284,14 @@ public class FilmDbStorage implements FilmStorage {
                 }
             }
         }
+        if (film.getDirectors() != null) {
+            for (Director director : film.getDirectors()) {
+                if (!directorDbStorage.isContains(director.getId())) {
+                    throw new ValidationException("Режиссер не найден");
+                }
+            }
+        }
+
     }
 
     private void validateFilm(Film film) {
