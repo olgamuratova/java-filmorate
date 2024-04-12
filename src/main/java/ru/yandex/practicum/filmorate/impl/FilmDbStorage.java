@@ -220,7 +220,7 @@ public class FilmDbStorage implements FilmStorage {
                 return result;
             }
         }
-        throw new ObjectNotFoundException("Ошибка");
+        throw new ObjectNotFoundException("Фильмы этого режиссера не найдены");
     }
 
     @Override

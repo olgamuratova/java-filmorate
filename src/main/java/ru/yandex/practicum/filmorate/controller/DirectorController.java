@@ -16,7 +16,7 @@ public class DirectorController {
     DirectorStorage directorStorage;
 
     @Autowired
-    DirectorController(DirectorStorage directorStorage) {
+    public DirectorController(DirectorStorage directorStorage) {
         this.directorStorage = directorStorage;
     }
 
@@ -44,5 +44,4 @@ public class DirectorController {
     public void removeDirectorById(@PathVariable Integer id) {
         directorStorage.removeDirectorById(id);
     }
-
 }
