@@ -13,10 +13,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/directors")
 public class DirectorController {
-    DirectorStorage directorStorage;
+    private final DirectorStorage directorStorage;
 
     @Autowired
-    DirectorController(DirectorStorage directorStorage) {
+    public DirectorController(DirectorStorage directorStorage) {
         this.directorStorage = directorStorage;
     }
 
@@ -44,5 +44,4 @@ public class DirectorController {
     public void removeDirectorById(@PathVariable Integer id) {
         directorStorage.removeDirectorById(id);
     }
-
 }
