@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/directors")
 public class DirectorController {
-    DirectorStorage directorStorage;
+    private final DirectorStorage directorStorage;
 
     @Autowired
     public DirectorController(DirectorStorage directorStorage) {
