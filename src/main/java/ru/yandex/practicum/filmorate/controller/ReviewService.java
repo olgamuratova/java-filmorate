@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.controller;
 
 import ru.yandex.practicum.filmorate.model.Review;
 import java.util.Collection;
