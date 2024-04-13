@@ -8,7 +8,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.ReviewStorage;
-import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.exception.InternalServiceException;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.sql.PreparedStatement;
@@ -61,11 +61,11 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public Review getReviewById(long id) throws ObjectNotFoundException {
+    public Review getReviewById(long id) throws InternalServiceException {
         return jdbcTemplate.query(SQL_GET_REVIEW_BY_ID, this::makeReview, id)
                 .stream()
                 .findAny()
-                .orElseThrow(() -> new ObjectNotFoundException("Отзыв с id " + id + " не найден."));
+                .orElseThrow(() -> new InternalServiceException("Отзыв с id " + id + " не найден."));
     }
 
     @Override
