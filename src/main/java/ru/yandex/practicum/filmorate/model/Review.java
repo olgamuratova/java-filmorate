@@ -78,10 +78,6 @@ public class Review {
         this.useful = useful;
     }
 
-    protected boolean canEqual(final Object other) {
-        return other instanceof Review;
-    }
-    
     public boolean equals(final Object o) {
         if (o == this) return true;
         if (!(o instanceof Review)) return false;
@@ -96,6 +92,10 @@ public class Review {
         if (this$content == null ? other$content != null : !this$content.equals(other$content)) return false;
         if (this.getUseful() != other.getUseful()) return false;
         return true;
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof Review;
     }
 
     public int hashCode() {
