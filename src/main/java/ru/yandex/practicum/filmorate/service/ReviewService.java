@@ -1,81 +1,28 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.ReviewStorage;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.service.impl.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.service.impl.InMemoryUserStorage;
+import java.util.Collection;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
+public interface ReviewService {
+    Review getReviewById(Long id);
 
-@Service
-@Slf4j
-@RequiredArgsConstructor
-public class ReviewService {
+    Collection<Review> getReviews(Long filmId, Integer count);
 
-    private final ReviewStorage reviewStorage;
-    private final InMemoryFilmStorage inMemoryFilmStorage;
-    private final InMemoryUserStorage inMemoryUserStorage;
+    Review createReview(Review review);
 
-    public Review addReview(Review review) {
-        inMemoryFilmStorage.getById(Math.toIntExact(review.getFilmId()));
-        inMemoryUserStorage.getById(Math.toIntExact(review.getUserId()));
-        return reviewStorage.addReview(review);
-    }
+    Review updateReview(Review review);
 
-    public Review updateReview(Review review) {
-        getReviewById(review.getReviewId());
-        return reviewStorage.updateReview(review);
-    }
+    String addLike(Long id, Long userId);
 
-    public Review getReviewById(long id) {
-        return reviewStorage.getReviewById(id);
-    }
+    String addDislike(Long id, Long userId);
 
-    public void deleteReviewById(long id) {
-        reviewStorage.deleteReviewById(id);
-    }
+    String deleteLike(Long id, Long userId);
 
-    public void addReviewLike(long reviewId, long userId) {
-        getReviewById(reviewId);
-        inMemoryUserStorage.getById((int) userId);
-        reviewStorage.addReviewLike(reviewId, userId);
-    }
+    String deleteDislike(Long id, Long userId);
 
-    public void deleteReviewLike(long reviewId, long userId) {
-        getReviewById(reviewId);
-        inMemoryUserStorage.getById((int) userId);
-        reviewStorage.deleteReviewLike(reviewId, userId);
-    }
+    String deleteReview(Long id);
 
-    public void addReviewDislike(long reviewId, long userId) {
-        getReviewById(reviewId);
-        inMemoryUserStorage.getById((int) userId);
-        reviewStorage.addReviewDislike(reviewId, userId);
-    }
+    void isReviewExist(Long reviewId);
 
-    public void deleteReviewDislike(long reviewId, long userId) {
-        getReviewById(reviewId);
-        inMemoryUserStorage.getById((int) userId);
-        reviewStorage.deleteReviewDislike(reviewId, userId);
-    }
-
-    public List<Review> getAllReviews() {
-        return reviewStorage.getAll()
-                .stream()
-                .sorted(Comparator.comparingLong(Review::getUseful).reversed())
-                .collect(Collectors.toList());
-    }
-
-    public List<Review> getReviewsByFilmId(long filmId, int limit) {
-        return reviewStorage.getReviewsByFilmId(filmId)
-                .stream()
-                .sorted(Comparator.comparingLong(Review::getUseful).reversed())
-                .limit(limit)
-                .collect(Collectors.toList());
-    }
+    void isReviewValid(Review review);
 }
