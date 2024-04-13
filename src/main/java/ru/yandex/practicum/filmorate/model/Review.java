@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -80,6 +81,7 @@ public class Review {
     protected boolean canEqual(final Object other) {
         return other instanceof Review;
     }
+    
     public boolean equals(final Object o) {
         if (o == this) return true;
         if (!(o instanceof Review)) return false;
