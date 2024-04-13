@@ -37,6 +37,8 @@ public class Film {
 
     private Set<Integer> likes = new HashSet<>();
 
+    private List<Director> directors;
+
     public Integer getLikesQuantity() {
         return likes.size();
     }
