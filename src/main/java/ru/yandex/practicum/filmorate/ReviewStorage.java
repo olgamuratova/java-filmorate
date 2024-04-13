@@ -2,32 +2,29 @@ package ru.yandex.practicum.filmorate;
 
 import ru.yandex.practicum.filmorate.model.Review;
 
-import java.util.Collection;
+import java.util.List;
 
 public interface ReviewStorage {
-    Review getReviewById(Long id);
 
-    Collection<Review> getAllReviews();
+    List<Review> getAll();
 
-    Collection<Review> getReviews(Long filmId, Integer count);
+    Review getReviewById(long id);
 
-    Review createReview(Review review);
+    Review addReview(Review review);
 
     Review updateReview(Review review);
 
-    void addLike(Long id, Long userId);
+    void deleteReviewById(long id);
 
-    void addDislike(Long id, Long userId);
+    void addReviewLike(long reviewId, long userId);
 
-    void deleteLike(Long id, Long userId);
+    void deleteReviewLike(long reviewId, long userId);
 
-    void deleteDislike(Long id, Long userId);
+    void addReviewDislike(long reviewId, long userId);
 
-    void deleteReview(Long id);
+    void deleteReviewDislike(long reviewId, long userId);
 
-    boolean isReviewExist(Long reviewId);
+    List<Review> getReviewsByFilmId(long filmId);
 
-    boolean isLikeExist(Long reviewId, Long userId);
 
-    boolean isDislikeExist(Long reviewId, Long userId);
 }

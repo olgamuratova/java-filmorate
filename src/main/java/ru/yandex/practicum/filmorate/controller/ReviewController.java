@@ -2,79 +2,70 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.service.ReviewService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import java.util.Collection;
+import javax.validation.constraints.Positive;
+import java.util.List;
 
-@RestController
-@RequestMapping("/reviews")
-@RequiredArgsConstructor
-@Validated
 @Slf4j
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/reviews")
 public class ReviewController {
     private final ReviewService reviewService;
 
+    @GetMapping
+    public List<Review> getFilmsReviews(@RequestParam(required = false) @Positive Long filmId,
+                                        @RequestParam(defaultValue = "10", required = false) @Positive int count) {
+        if (filmId == null) {
+            return reviewService.getAllReviews();
+        } else {
+            return reviewService.getReviewsByFilmId(filmId, count);
+        }
+    }
+
     @GetMapping("/{id}")
-    public Review getReviewById(@PathVariable @NotNull @Min(1) Long id) {
+    public Review getReviewById(@PathVariable long id) throws ObjectNotFoundException {
         return reviewService.getReviewById(id);
     }
 
-    @GetMapping
-    public Collection<Review> getReviews(@RequestParam(required = false) Long filmId,
-                                         @RequestParam(defaultValue = "10") Integer count) {
-        return reviewService.getReviews(filmId, count);
-    }
-
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Review createReview(@Valid @RequestBody Review review) {
-        if (review.getReviewId() != 0) {
-            throw new ValidationException("id for the review must not be specified");
-        }
-        reviewService.isReviewValid(review);
-        return reviewService.createReview(review);
+    public Review addReview(@Valid @RequestBody Review review) {
+        return reviewService.addReview(review);
     }
 
     @PutMapping
     public Review updateReview(@Valid @RequestBody Review review) {
-        reviewService.isReviewExist(review.getReviewId());
-        reviewService.isReviewValid(review);
         return reviewService.updateReview(review);
     }
 
-    @PutMapping("/{id}/like/{userId}")
-    public String addLike(@PathVariable @NotNull @Min(1) Long id,
-                          @PathVariable @NotNull @Min(1) Long userId) {
-        return reviewService.addLike(id, userId);
+    @DeleteMapping("/{id}")
+    public void deleteReviewById(@PathVariable long id) {
+        reviewService.deleteReviewById(id);
     }
 
-    @PutMapping("/{id}/dislike/{userId}")
-    public String addDislike(@PathVariable @NotNull @Min(1) Long id,
-                             @PathVariable @NotNull @Min(1) Long userId) {
-        return reviewService.addDislike(id, userId);
+    @PutMapping("/{id}/like/{userId}")
+    public void addReviewLike(@PathVariable long id, @PathVariable long userId) {
+        reviewService.addReviewLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public String deleteLike(@PathVariable @NotNull @Min(1) Long id,
-                             @PathVariable @NotNull @Min(1) Long userId) {
-        return reviewService.deleteLike(id, userId);
+    public void deleteReviewLike(@PathVariable long id, @PathVariable long userId) {
+        reviewService.deleteReviewLike(id, userId);
+    }
+
+    @PutMapping("/{id}/dislike/{userId}")
+    public void addReviewDislike(@PathVariable long id, @PathVariable long userId) {
+        reviewService.addReviewDislike(id, userId);
     }
 
     @DeleteMapping("/{id}/dislike/{userId}")
-    public String deleteDislike(@PathVariable @NotNull @Min(1) Long id,
-                                @PathVariable @NotNull @Min(1) Long userId) {
-        return reviewService.deleteDislike(id, userId);
+    public void deleteReviewDislike(@PathVariable long id, @PathVariable long userId) {
+        reviewService.addReviewDislike(id, userId);
     }
 
-    @DeleteMapping("/{id}")
-    public String deleteReview(@PathVariable @NotNull @Min(1) Long id) {
-        return reviewService.deleteReview(id);
-    }
 }

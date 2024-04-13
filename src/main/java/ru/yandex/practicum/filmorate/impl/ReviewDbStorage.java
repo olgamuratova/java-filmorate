@@ -1,148 +1,174 @@
 package ru.yandex.practicum.filmorate.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.ReviewStorage;
-import ru.yandex.practicum.filmorate.mapper.ReviewMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.ReviewStorage;
 
-import java.util.Collection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 
-@Repository
-@RequiredArgsConstructor
+@Slf4j
+@Component
 @Primary
+@RequiredArgsConstructor
 public class ReviewDbStorage implements ReviewStorage {
+
+    private static final String SQL_GET_ALL_REVIEWS = "SELECT * FROM reviews;";
+
+    private static final String SQL_GET_REVIEW_BY_ID = "SELECT * FROM reviews WHERE review_id = ?;";
+
+    private static final String SQL_ADD_REVIEW = "INSERT INTO reviews (content, is_positive, user_id, film_id) " +
+            "VALUES (?, ?, ?, ?);";
+
+    private static final String SQL_UPDATE_REVIEW = "UPDATE reviews SET content = ?, is_positive = ? " +
+            "WHERE review_id = ?;";
+
+    private static final String SQL_DELETE_REVIEW_BY_ID = "DELETE FROM reviews WHERE review_id = ?;";
+
+    private static final String SQL_ADD_REVIEW_LIKE = "INSERT INTO review_likes (review_id, user_id) VALUES (?, ?);";
+
+    private static final String SQL_REMOVE_REVIEW_LIKE = "DELETE FROM review_likes WHERE review_id = ? " +
+            "AND user_id = ?;";
+
+    private static final String SQL_ADD_REVIEW_DISLIKE = "INSERT INTO review_dislikes (review_id, user_id) " +
+            "VALUES (?, ?);";
+
+    private static final String SQL_REMOVE_REVIEW_DISLIKE = "DELETE FROM review_dislikes WHERE review_dislike_id = ? " +
+            "AND user_id = ?;";
+
+    private static final String SQL_GET_REVIEW_BY_FILM_ID = "SELECT * FROM reviews WHERE film_id = ?;";
+
+    private static final String SQL_REVIEW_LIKES_FROM_TABLE = "SELECT user_id FROM review_likes WHERE review_id = ?;";
+
+    private static final String SQL_REVIEW_DISLIKES_FROM_TABLE = "SELECT user_id FROM review_dislikes " +
+            "WHERE review_id = ?;";
+
     private final JdbcTemplate jdbcTemplate;
-    private final NamedParameterJdbcOperations parameter;
-    protected final String sqlSelectOneReview = "SELECT * FROM review WHERE review_id = :reviewId";
-    protected final String sqlSelectAllReviews = "SELECT * FROM review ORDER BY useful DESC";
-    protected final String sqlSelectReviewsByFilm = "SELECT * FROM review WHERE film_id = :filmId " +
-            "ORDER BY useful DESC LIMIT :count";
-    protected final String sqlUpdateReview = "UPDATE review SET is_positive = :isPositive, content = :content " +
-            "WHERE review_id = :reviewId";
-    protected final String sqlDeleteReview = "DELETE FROM review WHERE review_id = :reviewId";
-    protected final String sqlSelectIdReview = "SELECT review_id FROM review WHERE review_id = :reviewId";
-    protected final String sqlInsertReviewLike = "INSERT INTO review_likes VALUES (:reviewId, :userId)";
-    protected final String sqlInsertReviewDislike = "INSERT INTO review_dislikes VALUES (:reviewId, :userId)";
-    protected final String sqlDeleteReviewLike = "DELETE FROM review_likes WHERE review_id = :reviewId AND " +
-            "user_id = :userId";
-    protected final String sqlDeleteReviewDislike = "DELETE FROM review_dislikes WHERE review_id = :reviewId AND " +
-            "user_id = :userId";
-    protected final String sqlSelectLike = "SELECT * FROM review_likes WHERE review_id = :reviewId AND " +
-            "user_id = :userId";
-    protected final String sqlSelectDislike = "SELECT * FROM review_dislikes WHERE review_id = :reviewId AND " +
-            "user_id = :userId";
-    protected final String sqlUpdateUseful = "UPDATE review SET useful = :useful WHERE review_id = :reviewId";
-
 
     @Override
-    public Review getReviewById(Long id) {
-        Map<String, Object> params = Map.of("reviewId", id);
-        List<Review> review = parameter.query(sqlSelectOneReview, params, new ReviewMapper());
-
-        if (!review.isEmpty()) {
-            return review.get(0);
-        }
-        return null;
+    public List<Review> getAll() {
+        return jdbcTemplate.query(SQL_GET_ALL_REVIEWS, this::makeReview);
     }
 
     @Override
-    public Collection<Review> getAllReviews() {
-        return parameter.query(sqlSelectAllReviews, new ReviewMapper());
+    public Review getReviewById(long id) throws ObjectNotFoundException {
+        return jdbcTemplate.query(SQL_GET_REVIEW_BY_ID, this::makeReview, id)
+                .stream()
+                .findAny()
+                .orElseThrow(() -> new ObjectNotFoundException("Отзыв с id " + id + " не найден."));
     }
 
     @Override
-    public Collection<Review> getReviews(Long filmId, Integer count) {
-        Map<String, Object> params = Map.of("filmId", filmId, "count", count);
-        return parameter.query(sqlSelectReviewsByFilm, params, new ReviewMapper());
-    }
+    public Review addReview(Review review) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
-    @Override
-    public Review createReview(Review review) {
-        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-                .withTableName("review")
-                .usingGeneratedKeyColumns("review_id");
+        jdbcTemplate.update(con -> {
+            PreparedStatement statement = con.prepareStatement(SQL_ADD_REVIEW, new String[]{"review_id"});
+            statement.setString(1, review.getContent());
+            statement.setBoolean(2, review.getIsPositive());
+            statement.setLong(3, review.getUserId());
+            statement.setLong(4, review.getFilmId());
+            return statement;
+        }, keyHolder);
 
-        SqlParameterSource sqlParameterSource = new BeanPropertySqlParameterSource(review);
-        review.setReviewId(simpleJdbcInsert.executeAndReturnKey(sqlParameterSource).longValue());
-        return getReviewById(review.getReviewId());
+        review.setReviewId(Objects.requireNonNull(keyHolder.getKey()).longValue());
+        log.trace("Отзыв сохранен: {}", review);
+        return review;
     }
 
     @Override
     public Review updateReview(Review review) {
-        parameter.update(sqlUpdateReview, getReviewParams(review));
+        jdbcTemplate.update(
+                SQL_UPDATE_REVIEW,
+                review.getContent(),
+                review.getIsPositive(),
+                review.getReviewId());
+        log.trace("Отзыв обновлен: {}", review);
         return getReviewById(review.getReviewId());
     }
 
     @Override
-    public void addLike(Long id, Long userId) {
-        parameter.update(sqlInsertReviewLike, Map.of("reviewId", id, "userId", userId));
-        int updatedUseful = getReviewById(id).getUseful() + 1;
-        parameter.update(sqlUpdateUseful, Map.of("useful", updatedUseful, "reviewId", id));
+    public void deleteReviewById(long id) {
+        Review review = getReviewById(id);
+        jdbcTemplate.update(SQL_DELETE_REVIEW_BY_ID, id);
+        log.trace("Отзыв удален: {}", review);
     }
 
     @Override
-    public void addDislike(Long id, Long userId) {
-        parameter.update(sqlInsertReviewDislike, Map.of("reviewId", id, "userId", userId));
-        int updatedUseful = getReviewById(id).getUseful() - 1;
-        parameter.update(sqlUpdateUseful, Map.of("useful", updatedUseful, "reviewId", id));
+    public void addReviewLike(long reviewId, long userId) {
+        if (getReviewDisLikesFromTable(reviewId).contains(userId)) {
+            deleteReviewDislike(reviewId, userId);
+        }
+        jdbcTemplate.update(SQL_ADD_REVIEW_LIKE, reviewId, userId);
     }
 
     @Override
-    public void deleteLike(Long id, Long userId) {
-        parameter.update(sqlDeleteReviewLike, Map.of("reviewId", id, "userId", userId));
-        int updatedUseful = getReviewById(id).getUseful() - 1;
-        parameter.update(sqlUpdateUseful, Map.of("useful", updatedUseful, "reviewId", id));
+    public void deleteReviewLike(long reviewId, long userId) {
+        jdbcTemplate.update(SQL_REMOVE_REVIEW_LIKE, reviewId, userId);
     }
 
     @Override
-    public void deleteDislike(Long id, Long userId) {
-        parameter.update(sqlDeleteReviewDislike, Map.of("reviewId", id, "userId", userId));
-        int updatedUseful = getReviewById(id).getUseful() + 1;
-        parameter.update(sqlUpdateUseful, Map.of("useful", updatedUseful, "reviewId", id));
+    public void addReviewDislike(long reviewId, long userId) {
+        if (getReviewLikesFromTable(reviewId).contains(userId)) {
+            deleteReviewLike(reviewId, userId);
+        }
+        jdbcTemplate.update(SQL_ADD_REVIEW_DISLIKE, reviewId, userId);
     }
 
     @Override
-    public void deleteReview(Long id) {
-        parameter.update(sqlDeleteReview, Map.of("reviewId", id));
+    public void deleteReviewDislike(long reviewId, long userId) {
+        jdbcTemplate.update(SQL_REMOVE_REVIEW_DISLIKE, reviewId, userId);
     }
 
     @Override
-    public boolean isReviewExist(Long reviewId) {
-        List<Integer> id = parameter.query(
-                sqlSelectIdReview, Map.of("reviewId", reviewId),
-                (rs, rowNum) -> rs.getInt("review_id"));
-
-        return id.size() == 1;
+    public List<Review> getReviewsByFilmId(long filmId) {
+        return jdbcTemplate.query(SQL_GET_REVIEW_BY_FILM_ID, this::makeReview, filmId);
     }
 
-    @Override
-    public boolean isLikeExist(Long reviewId, Long userId) {
-        List<Map<String, Object>> record = parameter.queryForList(
-                sqlSelectLike, Map.of("reviewId", reviewId, "userId", userId));
-
-        return record.size() == 1;
+    private Review makeReview(ResultSet rs, int rowNum) throws SQLException {
+        Review review = new Review(
+                rs.getLong("review_id"),
+                rs.getString("content"),
+                rs.getBoolean("is_positive"),
+                rs.getLong("user_id"),
+                rs.getLong("film_id"));
+        review.setLikes(getReviewLikesFromTable(review.getReviewId()));
+        review.setDislikes(getReviewDisLikesFromTable(review.getReviewId()));
+        review.setUseful(usefulCalculate(review));
+        return review;
     }
 
-    @Override
-    public boolean isDislikeExist(Long reviewId, Long userId) {
-        List<Map<String, Object>> record = parameter.queryForList(
-                sqlSelectDislike, Map.of("reviewId", reviewId, "userId", userId));
-
-        return record.size() == 1;
+    private long usefulCalculate(Review review) {
+        long useful = 0;
+        useful += review.getLikes().size();
+        useful -= review.getDislikes().size();
+        return useful;
     }
 
-    private Map<String, Object> getReviewParams(Review review) {
-        return Map.of("filmId", review.getFilmId(), "userId", review.getUserId(),
-                "isPositive", review.getIsPositive(), "content", review.getContent(),
-                "useful", review.getUseful(), "reviewId", review.getReviewId());
+    private List<Long> getReviewLikesFromTable(Long reviewId) {
+        return jdbcTemplate.query(SQL_REVIEW_LIKES_FROM_TABLE, this::getUserIdFRomTableLikeReview, reviewId);
     }
+
+    private long getUserIdFRomTableLikeReview(ResultSet rs, int rowNum) throws SQLException {
+        return rs.getLong("user_id");
+    }
+
+    private List<Long> getReviewDisLikesFromTable(Long reviewId) {
+        return jdbcTemplate.query(SQL_REVIEW_DISLIKES_FROM_TABLE, this::getUserIdFRomTableDislikeReview, reviewId);
+    }
+
+    private long getUserIdFRomTableDislikeReview(ResultSet rs, int rowNum) throws SQLException {
+        return rs.getLong("user_id");
+    }
+
 }
