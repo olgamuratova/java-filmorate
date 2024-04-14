@@ -65,14 +65,15 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public Review getReviewById(long id) throws ObjectNotFoundException {
-        Map<String, Object> params = Map.of("reviewId", id);
-        List<Review> review = parameter.query(SQL_GET_REVIEW_BY_ID, params, new ReviewMapper());
+    public Review getReviewById(long id) {
+        List<Review> review = jdbcTemplate.query(SQL_GET_REVIEW_BY_ID, this::makeReview, id);
 
         if (!review.isEmpty()) {
             return review.get(0);
+        } else {
+            throw new ObjectNotFoundException("Отзыв не найден");
         }
-        return null;
+
     }
 
     @Override

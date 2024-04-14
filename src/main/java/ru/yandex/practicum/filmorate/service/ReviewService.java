@@ -18,16 +18,16 @@ import java.util.stream.Collectors;
 public class ReviewService {
 
     private final ReviewStorage reviewStorage;
-    private final FilmDbStorage inMemoryFilmStorage;
-    private final UserDbStorage inMemoryUserStorage;
+    private final FilmDbStorage filmDbStorage;
+    private final UserDbStorage userDbStorage;
 
     public Review getReviewById(long id) {
         return reviewStorage.getReviewById(id);
     }
 
     public Review addReview(Review review) {
-        inMemoryFilmStorage.getById(Math.toIntExact(review.getFilmId()));
-        inMemoryUserStorage.getById(Math.toIntExact(review.getUserId()));
+        filmDbStorage.getById(Math.toIntExact(review.getFilmId()));
+        userDbStorage.getById(Math.toIntExact(review.getUserId()));
         return reviewStorage.addReview(review);
     }
 
@@ -42,25 +42,25 @@ public class ReviewService {
 
     public void addReviewLike(long reviewId, long userId) {
         getReviewById(reviewId);
-        inMemoryUserStorage.getById((int) userId);
+        userDbStorage.getById((int) userId);
         reviewStorage.addReviewLike(reviewId, userId);
     }
 
     public void deleteReviewLike(long reviewId, long userId) {
         getReviewById(reviewId);
-        inMemoryUserStorage.getById((int) userId);
+        userDbStorage.getById((int) userId);
         reviewStorage.deleteReviewLike(reviewId, userId);
     }
 
     public void addReviewDislike(long reviewId, long userId) {
         getReviewById(reviewId);
-        inMemoryUserStorage.getById((int) userId);
+        userDbStorage.getById((int) userId);
         reviewStorage.addReviewDislike(reviewId, userId);
     }
 
     public void deleteReviewDislike(long reviewId, long userId) {
         getReviewById(reviewId);
-        inMemoryUserStorage.getById((int) userId);
+        userDbStorage.getById((int) userId);
         reviewStorage.deleteReviewDislike(reviewId, userId);
     }
 
