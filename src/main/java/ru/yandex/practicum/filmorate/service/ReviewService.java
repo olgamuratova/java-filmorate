@@ -3,9 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.FilmStorage;
 import ru.yandex.practicum.filmorate.ReviewStorage;
-import ru.yandex.practicum.filmorate.UserStorage;
+import ru.yandex.practicum.filmorate.impl.FilmDbStorage;
+import ru.yandex.practicum.filmorate.impl.UserDbStorage;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.util.Comparator;
@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 public class ReviewService {
 
     private final ReviewStorage reviewStorage;
-    private final FilmStorage inMemoryFilmStorage;
-    private final UserStorage inMemoryUserStorage;
+    private final FilmDbStorage inMemoryFilmStorage;
+    private final UserDbStorage inMemoryUserStorage;
 
     public Review getReviewById(long id) {
         return reviewStorage.getReviewById(id);
