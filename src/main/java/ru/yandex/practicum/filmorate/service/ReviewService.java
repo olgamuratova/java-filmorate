@@ -73,14 +73,13 @@ public class ReviewService {
     }
 
     public List<Review> getReviewsByFilmId(long filmId, int limit) {
-        if(filmDbStorage.isContains(Math.toIntExact(filmId))) {
+        if (filmDbStorage.isContains(Math.toIntExact(filmId))) {
             return reviewStorage.getReviewsByFilmId(filmId)
                     .stream()
                     .sorted(Comparator.comparingLong(Review::getUseful).reversed())
                     .limit(limit)
                     .collect(Collectors.toList());
         }
-
         throw new ObjectNotFoundException("Фильм не найден");
     }
 }
