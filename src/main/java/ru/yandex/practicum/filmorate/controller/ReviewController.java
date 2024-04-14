@@ -19,12 +19,13 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @GetMapping
-    public List<Review> getFilmsReviews(@RequestParam(required = false) @Positive Long filmId,
+    public List<Review> getFilmsReviews(@RequestParam(defaultValue = "0", required = false) @Positive Long filmId,
                                         @RequestParam(defaultValue = "10", required = false) @Positive int count) {
-        if (filmId == null) {
-            return reviewService.getAllReviews();
-        } else {
+        if (filmId > 0) {
             return reviewService.getReviewsByFilmId(filmId, count);
+        } else {
+
+            return reviewService.getAllReviews();
         }
     }
 

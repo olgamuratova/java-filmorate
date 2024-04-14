@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.ReviewStorage;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.impl.FilmDbStorage;
 import ru.yandex.practicum.filmorate.impl.UserDbStorage;
 import ru.yandex.practicum.filmorate.model.Review;
@@ -72,10 +73,14 @@ public class ReviewService {
     }
 
     public List<Review> getReviewsByFilmId(long filmId, int limit) {
-        return reviewStorage.getReviewsByFilmId(filmId)
-                .stream()
-                .sorted(Comparator.comparingLong(Review::getUseful).reversed())
-                .limit(limit)
-                .collect(Collectors.toList());
+        if(filmDbStorage.isContains(Math.toIntExact(filmId))) {
+            return reviewStorage.getReviewsByFilmId(filmId)
+                    .stream()
+                    .sorted(Comparator.comparingLong(Review::getUseful).reversed())
+                    .limit(limit)
+                    .collect(Collectors.toList());
+        }
+
+        throw new ObjectNotFoundException("Фильм не найден");
     }
 }

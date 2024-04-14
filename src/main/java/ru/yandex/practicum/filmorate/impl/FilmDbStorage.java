@@ -255,7 +255,7 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update("DELETE FROM film_director WHERE film_id=?", filmId);
     }
 
-    private boolean isContains(Integer id) {
+    public boolean isContains(Integer id) {
         try {
             getById(id);
             return true;
