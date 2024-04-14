@@ -120,6 +120,11 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     }
 
+    @Override
+    public List<Film> getRecommendedFilms(int userId) {
+        return null;
+    }
+
     private void validateFilm(Film film) {
         if (film.getName().isEmpty()) {
             throw new ValidationException("Название не может быть пустым");
