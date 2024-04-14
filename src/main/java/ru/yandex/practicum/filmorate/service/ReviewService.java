@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.ReviewStorage;
+import ru.yandex.practicum.filmorate.impl.ReviewDbStorage;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.impl.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.service.impl.InMemoryUserStorage;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ReviewService {
 
-    private final ReviewStorage reviewStorage;
+    private final ReviewDbStorage reviewStorage;
     private final InMemoryFilmStorage inMemoryFilmStorage;
     private final InMemoryUserStorage inMemoryUserStorage;
 
