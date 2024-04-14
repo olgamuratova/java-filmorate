@@ -3,7 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.FilmStorage;
 import ru.yandex.practicum.filmorate.UserStorage;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
@@ -15,9 +17,12 @@ public class UserService {
 
     private final UserStorage userStorage;
 
+    private final FilmStorage filmStorage;
+
     @Autowired
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, @Qualifier("filmDbStorage") FilmStorage filmStorage) {
         this.userStorage = userStorage;
+        this.filmStorage = filmStorage;
     }
 
     public void addFriend(Integer userId, Integer friendId) {
@@ -48,6 +53,11 @@ public class UserService {
 
     public UserStorage getUsersStorage() {
         return userStorage;
+    }
+
+    public List<Film> getFilmRecommendations(Integer id) {
+        return filmStorage.getRecommendedFilms(id);
+
     }
 
     private boolean checkUserExist(Integer userId) {
