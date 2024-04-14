@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.InternalServiceException;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
@@ -29,7 +29,7 @@ public class ReviewController {
     }
 
     @GetMapping("/{id}")
-    public Review getReviewById(@PathVariable long id) throws InternalServiceException {
+    public Review getReviewById(@PathVariable long id) throws ObjectNotFoundException {
         return reviewService.getReviewById(id);
     }
 
