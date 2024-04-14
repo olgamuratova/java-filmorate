@@ -4,17 +4,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.ReviewStorage;
-import ru.yandex.practicum.filmorate.exception.InternalServiceException;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.mapper.ReviewMapper;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Slf4j
@@ -54,18 +57,22 @@ public class ReviewDbStorage implements ReviewStorage {
             "WHERE review_id = ?;";
 
     private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcOperations parameter;
 
     @Override
     public List<Review> getAll() {
-        return jdbcTemplate.query(SQL_GET_ALL_REVIEWS, this::makeReview);
+        return parameter.query(SQL_GET_ALL_REVIEWS, new ReviewMapper());
     }
 
     @Override
-    public Review getReviewById(long id) throws InternalServiceException {
-        return jdbcTemplate.query(SQL_GET_REVIEW_BY_ID, this::makeReview, id)
-                .stream()
-                .findAny()
-                .orElseThrow(() -> new InternalServiceException("Отзыв с id " + id + " не найден."));
+    public Review getReviewById(long id) throws ObjectNotFoundException {
+        Map<String, Object> params = Map.of("reviewId", id);
+        List<Review> review = parameter.query(SQL_GET_REVIEW_BY_ID, params, new ReviewMapper());
+
+        if (!review.isEmpty()) {
+            return review.get(0);
+        }
+        return null;
     }
 
     @Override
