@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
@@ -56,11 +55,10 @@ public class ReviewDbStorage implements ReviewStorage {
             "WHERE review_id = ?;";
 
     private final JdbcTemplate jdbcTemplate;
-    private final NamedParameterJdbcOperations parameter;
 
     @Override
     public List<Review> getAll() {
-        return parameter.query(SQL_GET_ALL_REVIEWS, new ReviewMapper());
+        return jdbcTemplate.query(SQL_GET_ALL_REVIEWS, this::makeReview);
     }
 
     @Override
