@@ -265,8 +265,7 @@ public class FilmDbStorage implements FilmStorage {
         return result;
     }
 
-
-    private boolean isContains(Integer id) {
+    public boolean isContains(Integer id) {
         try {
             getById(id);
             return true;
