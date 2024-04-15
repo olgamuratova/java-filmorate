@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class Review {
 
-    private long reviewId;
+    private Long reviewId;
     @NotBlank
     private String content;
     @NotNull

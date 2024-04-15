@@ -69,7 +69,6 @@ public class ReviewDbStorage implements ReviewStorage {
         } else {
             throw new ObjectNotFoundException("Отзыв не найден");
         }
-
     }
 
     @Override

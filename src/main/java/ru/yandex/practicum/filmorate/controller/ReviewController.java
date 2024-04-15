@@ -16,16 +16,16 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/reviews")
 public class ReviewController {
+
     private final ReviewService reviewService;
 
     @GetMapping
-    public List<Review> getFilmsReviews(@RequestParam(defaultValue = "0", required = false) @Positive Long filmId,
+    public List<Review> getFilmsReviews(@RequestParam(required = false) @Positive Long filmId,
                                         @RequestParam(defaultValue = "10", required = false) @Positive int count) {
-        if (filmId > 0) {
-            return reviewService.getReviewsByFilmId(filmId, count);
-        } else {
-
+        if (filmId == null) {
             return reviewService.getAllReviews();
+        } else {
+            return reviewService.getReviewsByFilmId(filmId, count);
         }
     }
 
