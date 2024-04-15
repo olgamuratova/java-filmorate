@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.DirectorStorage;
+import ru.yandex.practicum.filmorate.db.DirectorStorage;
 import ru.yandex.practicum.filmorate.model.Director;
 
 import javax.validation.Valid;
@@ -13,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/directors")
 public class DirectorController {
+
     private final DirectorStorage directorStorage;
 
     @Autowired

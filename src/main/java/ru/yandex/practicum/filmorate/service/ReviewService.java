@@ -3,10 +3,10 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.ReviewStorage;
+import ru.yandex.practicum.filmorate.db.ReviewStorage;
+import ru.yandex.practicum.filmorate.db.impl.FilmDbStorage;
+import ru.yandex.practicum.filmorate.db.impl.UserDbStorage;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
-import ru.yandex.practicum.filmorate.impl.FilmDbStorage;
-import ru.yandex.practicum.filmorate.impl.UserDbStorage;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.util.Comparator;

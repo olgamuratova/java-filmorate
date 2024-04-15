@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.UserStorage;
+import ru.yandex.practicum.filmorate.db.UserStorage;
 
 import javax.validation.Valid;
 import java.util.List;

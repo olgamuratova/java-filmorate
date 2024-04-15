@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.UserStorage;
+import ru.yandex.practicum.filmorate.db.UserStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
