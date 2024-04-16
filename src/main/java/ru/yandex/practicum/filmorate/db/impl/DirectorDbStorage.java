@@ -1,10 +1,10 @@
-package ru.yandex.practicum.filmorate.impl;
+package ru.yandex.practicum.filmorate.db.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.DirectorStorage;
+import ru.yandex.practicum.filmorate.db.DirectorStorage;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.mapper.DirectorMapper;
 import ru.yandex.practicum.filmorate.model.Director;

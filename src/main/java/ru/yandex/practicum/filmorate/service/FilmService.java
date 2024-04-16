@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.FilmStorage;
+import ru.yandex.practicum.filmorate.db.FilmStorage;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Comparator;
@@ -33,5 +33,9 @@ public class FilmService {
                 .sorted(Comparator.comparingInt(filmStorage::getLikesQuantity).reversed())
                 .limit(count)
                 .collect(Collectors.toList());
+    }
+
+    public List<Film> getFilmsByQuery(String query, String type) {
+        return filmStorage.getFilmsByQuery(query, type);
     }
 }

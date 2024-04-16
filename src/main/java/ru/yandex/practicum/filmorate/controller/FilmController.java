@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.FilmStorage;
+import ru.yandex.practicum.filmorate.db.FilmStorage;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -73,5 +73,10 @@ public class FilmController {
     @DeleteMapping("/{id}/like/{userId}")
     public void removeLike(@PathVariable Integer id, @PathVariable Integer userId) {
         filmService.deleteLike(id, userId);
+    }
+
+    @GetMapping("/search")
+    public List<Film> getFilmsByQuery(@RequestParam("query") String query, @RequestParam("by") String type) {
+        return filmService.getFilmsByQuery(query, type);
     }
 }

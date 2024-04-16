@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.impl;
+package ru.yandex.practicum.filmorate.db.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.mapper.GenreMapper;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.GenreStorage;
+import ru.yandex.practicum.filmorate.db.GenreStorage;
 
 import java.util.List;
 

@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.FilmStorage;
+import ru.yandex.practicum.filmorate.db.FilmStorage;
 import ru.yandex.practicum.filmorate.exception.InternalServiceException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -49,6 +49,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     public List<Film> getFilms() {
         log.info("Текущее количество фильмов: {}", films.size());
         return new ArrayList<>(films.values());
+    }
+
+    @Override
+    public List<Film> getFilmsByQuery(String query, String type) {
+        return null;
     }
 
     @Override

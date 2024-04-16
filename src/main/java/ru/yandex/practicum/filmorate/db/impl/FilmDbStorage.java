@@ -1,11 +1,11 @@
-package ru.yandex.practicum.filmorate.impl;
+package ru.yandex.practicum.filmorate.db.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.FilmStorage;
+import ru.yandex.practicum.filmorate.db.FilmStorage;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.DirectorMapper;
@@ -104,12 +104,25 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getFilms() {
         String query = "SELECT * from films";
         List<Film> result = jdbcTemplate.query(query, new FilmMapper());
-        for (Film film : result) {
-            Mpa mpa = mpaDbStorage.getById(film.getMpa().getId());
-            film.setMpa(mpa);
-            film.setGenres(getGenres(film.getId()));
-            film.setDirectors(getDirectors(film.getId()));
-        }
+        addExtraInfoToFilms(result);
+        return result;
+    }
+
+    @Override
+    public List<Film> getFilmsByQuery(String query, String type) {
+        String sql = "SELECT * FROM films f " +
+                "LEFT JOIN film_director fd ON f.film_id = fd.film_id " +
+                "LEFT JOIN director d ON fd.director_id = d.director_id " +
+                "WHERE " +
+                "(? = 'title' AND LOWER(f.name) LIKE '%' || LOWER(?) || '%') OR " +
+                "(? = 'director' AND d.director_name LIKE '%' || LOWER(?) || '%') OR " +
+                "(? = 'title,director' AND (LOWER(f.name) LIKE '%' || LOWER(?) || '%' OR LOWER(d.director_name) LIKE '%' || LOWER(?) || '%')) OR " +
+                "(? = 'director,title' AND (LOWER(f.name) LIKE '%' || LOWER(?) || '%' OR LOWER(d.director_name) LIKE '%' || LOWER(?) || '%'))";
+        List<Film> result = jdbcTemplate.query(sql, new FilmMapper(), type, query, type, query, type, query, query, type, query, query)
+                .stream()
+                .sorted(Comparator.comparingInt(this::getLikesQuantity).reversed())
+                .collect(Collectors.toList());
+        addExtraInfoToFilms(result);
         return result;
     }
 
@@ -195,12 +208,7 @@ public class FilmDbStorage implements FilmStorage {
                         "WHERE fd.director_id = ? ";
 
                 List<Film> result = jdbcTemplate.query(query, new FilmMapper(), directorId);
-                for (Film film : result) {
-                    Mpa mpa = mpaDbStorage.getById(film.getMpa().getId());
-                    film.setMpa(mpa);
-                    film.setGenres(getGenres(film.getId()));
-                    film.setDirectors(getDirectors(film.getId()));
-                }
+                addExtraInfoToFilms(result);
                 return result;
             }
 
@@ -211,12 +219,7 @@ public class FilmDbStorage implements FilmStorage {
                         "WHERE fd.director_id = ? " +
                         "ORDER BY f.release_date";
                 List<Film> result = jdbcTemplate.query(query, new FilmMapper(), directorId);
-                for (Film film : result) {
-                    Mpa mpa = mpaDbStorage.getById(film.getMpa().getId());
-                    film.setMpa(mpa);
-                    film.setGenres(getGenres(film.getId()));
-                    film.setDirectors(getDirectors(film.getId()));
-                }
+                addExtraInfoToFilms(result);
                 return result;
             }
         }
@@ -265,6 +268,15 @@ public class FilmDbStorage implements FilmStorage {
         return result;
     }
 
+    private void addExtraInfoToFilms(List<Film> films) {
+        for (Film film : films) {
+            Mpa mpa = mpaDbStorage.getById(film.getMpa().getId());
+            film.setMpa(mpa);
+            film.setGenres(getGenres(film.getId()));
+            film.setDirectors(getDirectors(film.getId()));
+        }
+    }
+
     public boolean isContains(Integer id) {
         try {
             getById(id);
@@ -301,7 +313,6 @@ public class FilmDbStorage implements FilmStorage {
                 }
             }
         }
-
     }
 
     private void validateFilm(Film film) {

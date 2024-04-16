@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate;
+package ru.yandex.practicum.filmorate.db;
 
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -13,6 +13,8 @@ public interface FilmStorage {
     Film update(Film film);
 
     List<Film> getFilms();
+
+    List<Film> getFilmsByQuery(String query, String type);
 
     Film getById(Integer id);
 
