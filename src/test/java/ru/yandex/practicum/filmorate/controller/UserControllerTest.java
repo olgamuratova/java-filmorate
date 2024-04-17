@@ -19,7 +19,7 @@ public class UserControllerTest {
 
     private final InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
 
-    private final UserService userService = new UserService(inMemoryUserStorage, inMemoryFilmStorage);
+    private final UserService userService = new UserService(inMemoryUserStorage, inMemoryFilmStorage, null);
 
     private final UserController userController = new UserController(inMemoryUserStorage, userService);
 

@@ -95,14 +95,14 @@ CREATE TABLE IF NOT EXISTS review_dislikes (
 
 create table IF NOT EXISTS feed
 (
-    eventId   bigint,
-    userId    bigint,
-    eventType varchar(10),
-    operation varchar(10),
-    entityId  bigint,
-    timestamp timestamp,
+    event_id   bigint auto_increment,
+    user_id    bigint,
+    event_type varchar(10),
+    operation  varchar(10),
+    entity_id  bigint,
+    timestamp  bigint,
     constraint FEED_pk
-        primary key (eventId),
+        primary key (event_id),
     constraint FEED_USERS_USER_ID_fk
-        foreign key (userId) references USERS
+        foreign key (user_id) references USERS ON DELETE CASCADE ON UPDATE CASCADE
 );

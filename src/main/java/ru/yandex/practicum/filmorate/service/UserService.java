@@ -1,10 +1,13 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.db.FeedStorage;
 import ru.yandex.practicum.filmorate.db.FilmStorage;
 import ru.yandex.practicum.filmorate.db.UserStorage;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -13,26 +16,35 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class UserService {
 
     private final UserStorage userStorage;
-
     private final FilmStorage filmStorage;
+    private final FeedStorage feedStorage;
+
 
     @Autowired
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, @Qualifier("filmDbStorage") FilmStorage filmStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, @Qualifier("filmDbStorage") FilmStorage filmStorage, FeedStorage feedStorage) {
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
+        this.feedStorage = feedStorage;
     }
 
     public void addFriend(Integer userId, Integer friendId) {
         if (checkUserExist(userId) && checkUserExist(friendId)) {
             userStorage.addFriend(userId, friendId);
+            log.info("Запись события в таблицу аудита");
+            feedStorage.addFeed("FRIEND", "ADD", userId, friendId);
+            log.info("Информация успешно сохранена");
         }
     }
 
     public void deleteFriend(Integer userId, Integer friendId) {
         userStorage.deleteFriend(userId, friendId);
+        log.info("Запись события в таблицу аудита");
+        feedStorage.addFeed("FRIEND", "REMOVE", userId, friendId);
+        log.info("Информация успешно сохранена");
     }
 
     public List<User> getCommonFriend(Integer userId, Integer friendId) {
@@ -57,7 +69,13 @@ public class UserService {
 
     public List<Film> getFilmRecommendations(Integer id) {
         return filmStorage.getRecommendedFilms(id);
+    }
 
+    public List<Feed> getFeed(long userId) {
+        log.info("Начало выполнения метода getFeed.");
+        log.info("Проверка на существование");
+        userStorage.getById((int) userId);
+        return feedStorage.getFeedById(userId);
     }
 
     private boolean checkUserExist(Integer userId) {

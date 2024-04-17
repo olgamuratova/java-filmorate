@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.db.ReviewStorage;
+import ru.yandex.practicum.filmorate.db.impl.FeedDbStorage;
 import ru.yandex.practicum.filmorate.db.impl.FilmDbStorage;
 import ru.yandex.practicum.filmorate.db.impl.UserDbStorage;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
@@ -21,6 +22,7 @@ public class ReviewService {
     private final ReviewStorage reviewStorage;
     private final FilmDbStorage filmDbStorage;
     private final UserDbStorage userDbStorage;
+    private final FeedDbStorage feedStorage;
 
     public Review getReviewById(long id) {
         return reviewStorage.getReviewById(id);
@@ -29,16 +31,26 @@ public class ReviewService {
     public Review addReview(Review review) {
         filmDbStorage.getById(Math.toIntExact(review.getFilmId()));
         userDbStorage.getById(Math.toIntExact(review.getUserId()));
+        log.info("Запись события в таблицу аудита");
+        feedStorage.addFeed("REVIEW", "ADD", review.getUserId(), review.getReviewId());
+        log.info("Информация успешно сохранена");
         return reviewStorage.addReview(review);
     }
 
     public Review updateReview(Review review) {
         getReviewById(review.getReviewId());
+        log.info("Запись события в таблицу аудита");
+        feedStorage.addFeed("REVIEW", "UPDATE", review.getUserId(), review.getReviewId());
+        log.info("Информация успешно сохранена");
         return reviewStorage.updateReview(review);
     }
 
     public void deleteReviewById(long id) {
+        long userId = reviewStorage.getReviewById(id).getUserId();
         reviewStorage.deleteReviewById(id);
+        log.info("Запись события в таблицу аудита");
+        feedStorage.addFeed("REVIEW", "REMOVE", userId, id);
+        log.info("Информация успешно сохранена");
     }
 
     public void addReviewLike(long reviewId, long userId) {
