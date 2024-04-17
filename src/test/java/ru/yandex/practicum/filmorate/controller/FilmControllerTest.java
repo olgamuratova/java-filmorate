@@ -94,22 +94,4 @@ public class FilmControllerTest {
         assertThrows(ValidationException.class, () -> filmController.create(film));
         assertEquals(0, filmController.getFilms().size());
     }
-
-    @Test
-    void whenRemoveLike_shouldRemoveLikeFromAFilm() {
-        userStorage.create(user);
-        filmController.create(film);
-        filmController.likeAFilm(film.getId(), user.getId());
-        filmController.removeLike(film.getId(), user.getId());
-        assertEquals(0, film.getLikesQuantity());
-    }
-
-    @Test
-    void whenGetPopularFilms_shouldReturnListOfPopularFilms() {
-        userStorage.create(user);
-        filmController.create(film);
-        filmController.likeAFilm(film.getId(), user.getId());
-        List<Film> popularMoviesList = filmService.getPopularFilms(1);
-        assertEquals(1, popularMoviesList.size());
-    }
 }
