@@ -63,7 +63,7 @@ public class FilmService {
                 }
             }
         }
-        return result;
+        return finalResult;
     }
 
     public List<Film> getFilmsByQuery(String query, String type) {
