@@ -50,7 +50,7 @@ public class FeedDbStorage implements FeedStorage {
                 "ENTITY_ID", feed.getEntityId(),
                 "EVENT_TYPE", feed.getEventType(),
                 "OPERATION", feed.getOperation(),
-                "TIMESTAMP",feed.getTimestamp()
+                "TIMESTAMP", feed.getTimestamp()
         );
     }
 
