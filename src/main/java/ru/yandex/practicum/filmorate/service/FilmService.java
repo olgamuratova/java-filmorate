@@ -41,34 +41,34 @@ public class FilmService {
         log.info("Информация успешно сохранена");
     }
 
-    public List<Film> getPopularFilms(Integer count,Integer genreId,Integer year) {
+    public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
         List<Film> result = filmStorage.getFilms().stream()
                 .sorted(Comparator.comparingInt(filmStorage::getLikesQuantity).reversed())
                 .limit(count)
                 .collect(Collectors.toList());
         List<Film> finalResult = new ArrayList<>();
-        if (genreId == null && year == null){
+        if (genreId == null && year == null) {
             return result;
         } else if (genreId != null && year != null) {
             Integer temp = 0;
-            for (Film film : result){
-                if (film.getReleaseDate().getYear() == year && getStatus(film,genreId) && temp < count){
+            for (Film film : result) {
+                if (film.getReleaseDate().getYear() == year && getStatus(film, genreId) && temp < count) {
                     finalResult.add(film);
                     temp++;
                 }
             }
-        } else if (genreId == null){
+        } else if (genreId == null) {
             Integer temp = 0;
-            for (Film film : result){
-                if (film.getReleaseDate().getYear() == year && temp < count){
+            for (Film film : result) {
+                if (film.getReleaseDate().getYear() == year && temp < count) {
                     finalResult.add(film);
                     temp++;
                 }
             }
         } else if (year == null) {
             Integer temp = 0;
-            for (Film film : result){
-                if (getStatus(film,genreId) && temp < count){
+            for (Film film : result) {
+                if (getStatus(film, genreId) && temp < count) {
                     finalResult.add(film);
                     temp++;
                 }
@@ -81,9 +81,9 @@ public class FilmService {
         return filmStorage.getFilmsByQuery(query, type);
     }
 
-    private Boolean getStatus(Film film,Integer genreId){
-        for (Genre genre : film.getGenres()){
-            if (genre.getId() == genreId){
+    private Boolean getStatus(Film film, Integer genreId) {
+        for (Genre genre : film.getGenres()) {
+            if (genre.getId() == genreId) {
                 return true;
             }
         }
