@@ -109,7 +109,7 @@ public class FilmControllerTest {
         userStorage.create(user);
         filmController.create(film);
         filmController.likeAFilm(film.getId(), user.getId());
-        List<Film> popularMoviesList = filmService.getPopularFilms(1);
+        List<Film> popularMoviesList = filmService.getPopularFilms(1, null, null);
         assertEquals(1, popularMoviesList.size());
     }
 }
