@@ -35,35 +35,26 @@ public class FilmService {
                 .sorted(Comparator.comparingInt(filmStorage::getLikesQuantity).reversed())
                 .limit(count)
                 .collect(Collectors.toList());
-        List<Film> finalResult = new ArrayList<>();
-        if (genreId == null && year == null) {
-            return result;
-        } else if (genreId != null && year != null) {
-            Integer temp = 0;
-            for (Film film : result) {
-                if (film.getReleaseDate().getYear() == year && getStatus(film, genreId) && temp < count) {
-                    finalResult.add(film);
-                    temp++;
-                }
-            }
+        if (genreId != null && year != null) {
+            return filmStorage.getFilms().stream()
+                    .sorted(Comparator.comparingInt(filmStorage::getLikesQuantity).reversed())
+                    .filter(f -> f.getReleaseDate().getYear() == year && getStatus(f, genreId))
+                    .limit(count)
+                    .collect(Collectors.toList());
         } else if (genreId == null) {
-            Integer temp = 0;
-            for (Film film : result) {
-                if (film.getReleaseDate().getYear() == year && temp < count) {
-                    finalResult.add(film);
-                    temp++;
-                }
-            }
+            return filmStorage.getFilms().stream()
+                    .sorted(Comparator.comparingInt(filmStorage::getLikesQuantity).reversed())
+                    .filter(f -> f.getReleaseDate().getYear() == year)
+                    .limit(count)
+                    .collect(Collectors.toList());
         } else if (year == null) {
-            Integer temp = 0;
-            for (Film film : result) {
-                if (getStatus(film, genreId) && temp < count) {
-                    finalResult.add(film);
-                    temp++;
-                }
-            }
+            return filmStorage.getFilms().stream()
+                    .sorted(Comparator.comparingInt(filmStorage::getLikesQuantity).reversed())
+                    .filter(f -> getStatus(f, genreId))
+                    .limit(count)
+                    .collect(Collectors.toList());
         }
-        return finalResult;
+        return result;
     }
 
     public List<Film> getFilmsByQuery(String query, String type) {
