@@ -57,6 +57,7 @@ public class FilmService {
         return result;
     }
 
+
     public List<Film> getFilmsByQuery(String query, String type) {
         return filmStorage.getFilmsByQuery(query, type);
     }
