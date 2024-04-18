@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.db.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
@@ -16,20 +17,20 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class FeedDbStorage implements FeedStorage {
+
     private final JdbcTemplate jdbcTemplate;
 
-
     @Override
-    public List<Feed> getFeedById(long id) {
+    public List<Feed> getFeedById(int id) {
         String sqlQuery = "SELECT * FROM feed WHERE USER_ID = ? ";
-
-        System.out.println("Запрос формируется по id - " + id);
+        log.info("Запрос формируется по id - {}", id);
         return jdbcTemplate.query(sqlQuery, this::feedRowToFilm, id);
     }
 
     @Override
-    public void addFeed(String type, String operation, long userId, long entityId) {
+    public void addFeed(String type, String operation, int userId, int entityId) {
         SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("FEED")
                 .usingGeneratedKeyColumns("EVENT_ID");

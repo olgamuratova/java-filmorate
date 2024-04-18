@@ -28,14 +28,14 @@ public class FilmService {
     public void addLike(Integer filmId, Integer userId) {
         filmStorage.addLike(filmId, userId);
         log.info("Запись события в таблицу аудита");
-        feedStorage.addFeed("LIKE", "ADD", (long) userId, (long) filmId);
+        feedStorage.addFeed("LIKE", "ADD", userId, filmId);
         log.info("Информация успешно сохранена");
     }
 
     public void deleteLike(Integer filmId, Integer userId) {
         filmStorage.deleteLike(filmId, userId);
         log.info("Запись события в таблицу аудита");
-        feedStorage.addFeed("LIKE", "REMOVE", (long) userId, (long) filmId);
+        feedStorage.addFeed("LIKE", "REMOVE", userId, filmId);
         log.info("Информация успешно сохранена");
     }
 

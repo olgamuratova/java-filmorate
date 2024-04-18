@@ -20,7 +20,9 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserStorage userStorage;
+
     private final FilmStorage filmStorage;
+
     private final FeedStorage feedStorage;
 
 
@@ -71,9 +73,8 @@ public class UserService {
         return filmStorage.getRecommendedFilms(id);
     }
 
-    public List<Feed> getFeed(long userId) {
-        log.info("Начало выполнения метода getFeed.");
-        log.info("Проверка на существование");
+    public List<Feed> getFeed(int userId) {
+        log.info("Выполнение метода getFeed. Проверка на существование пользователя id = {}", userId);
         userStorage.getById((int) userId);
         return feedStorage.getFeedById(userId);
     }

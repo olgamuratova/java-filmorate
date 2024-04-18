@@ -33,7 +33,7 @@ public class ReviewService {
         userDbStorage.getById(Math.toIntExact(review.getUserId()));
         Review rev = reviewStorage.addReview(review);
         log.info("Запись события в таблицу аудита");
-        feedStorage.addFeed("REVIEW", "ADD", review.getUserId(), review.getReviewId());
+        feedStorage.addFeed("REVIEW", "ADD", (int) (long) review.getUserId(), (int) (long) review.getReviewId());
         log.info("Информация успешно сохранена");
         return rev;
     }
@@ -42,7 +42,7 @@ public class ReviewService {
         long userId = reviewStorage.getReviewById(review.getReviewId()).getUserId();
         Review newRev = reviewStorage.updateReview(review);
         log.info("Запись события в таблицу аудита");
-        feedStorage.addFeed("REVIEW", "UPDATE", userId, review.getReviewId());
+        feedStorage.addFeed("REVIEW", "UPDATE",  (int) (long) userId,  (int) (long) review.getReviewId());
         log.info("Информация успешно сохранена");
         return newRev;
     }
@@ -51,7 +51,7 @@ public class ReviewService {
         long userId = reviewStorage.getReviewById(id).getUserId();
         reviewStorage.deleteReviewById(id);
         log.info("Запись события в таблицу аудита");
-        feedStorage.addFeed("REVIEW", "REMOVE", userId, id);
+        feedStorage.addFeed("REVIEW", "REMOVE", (int) (long) userId, (int) (long) id);
         log.info("Информация успешно сохранена");
     }
 
