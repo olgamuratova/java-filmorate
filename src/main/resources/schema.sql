@@ -95,11 +95,11 @@ CREATE TABLE IF NOT EXISTS review_dislikes (
 
 CREATE TABLE IF NOT EXISTS feed
 (
-    event_id   BIGINT AUTO_INCREMENT,
-    user_id    BIGINT,
+    event_id   INTEGER AUTO_INCREMENT,
+    user_id    INTEGER,
     event_type VARCHAR(10),
     operation  VARCHAR(10),
-    entity_id  BIGINT,
+    entity_id  INTEGER,
     timestamp  BIGINT,
     CONSTRAINT FEED_pk
         PRIMARY KEY (event_id),
