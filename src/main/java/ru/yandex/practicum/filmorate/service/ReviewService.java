@@ -31,18 +31,20 @@ public class ReviewService {
     public Review addReview(Review review) {
         filmDbStorage.getById(Math.toIntExact(review.getFilmId()));
         userDbStorage.getById(Math.toIntExact(review.getUserId()));
+        Review rev = reviewStorage.addReview(review);
         log.info("Запись события в таблицу аудита");
         feedStorage.addFeed("REVIEW", "ADD", review.getUserId(), review.getReviewId());
         log.info("Информация успешно сохранена");
-        return reviewStorage.addReview(review);
+        return rev;
     }
 
     public Review updateReview(Review review) {
-        getReviewById(review.getReviewId());
+        long userId = reviewStorage.getReviewById(review.getReviewId()).getUserId();
+        Review newRev = reviewStorage.updateReview(review);
         log.info("Запись события в таблицу аудита");
-        feedStorage.addFeed("REVIEW", "UPDATE", review.getUserId(), review.getReviewId());
+        feedStorage.addFeed("REVIEW", "UPDATE", userId, review.getReviewId());
         log.info("Информация успешно сохранена");
-        return reviewStorage.updateReview(review);
+        return newRev;
     }
 
     public void deleteReviewById(long id) {
