@@ -39,10 +39,10 @@ public class ReviewService {
     }
 
     public Review updateReview(Review review) {
-        long userId = reviewStorage.getReviewById(review.getReviewId()).getUserId();
+        int userId = (int) (long) reviewStorage.getReviewById(review.getReviewId()).getUserId();
         Review newRev = reviewStorage.updateReview(review);
         log.info("Запись события в таблицу аудита");
-        feedStorage.addFeed("REVIEW", "UPDATE",  (int) (long) userId,  (int) (long) review.getReviewId());
+        feedStorage.addFeed("REVIEW", "UPDATE", userId, (int) (long) review.getReviewId());
         log.info("Информация успешно сохранена");
         return newRev;
     }
