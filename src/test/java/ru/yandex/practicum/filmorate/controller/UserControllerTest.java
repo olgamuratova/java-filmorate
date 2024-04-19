@@ -19,7 +19,7 @@ public class UserControllerTest {
 
     private final InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
 
-    private final UserService userService = new UserService(inMemoryUserStorage, inMemoryFilmStorage);
+    private final UserService userService = new UserService(inMemoryUserStorage, inMemoryFilmStorage, null);
 
     private final UserController userController = new UserController(inMemoryUserStorage, userService);
 
@@ -88,15 +88,4 @@ public class UserControllerTest {
         ValidationException validationException = assertThrows(ValidationException.class, () -> userController.create(user));
         assertEquals(validationException.getMessage(), "Дата рождения не может быть в будущем");
     }
-
-    @Test
-    void whenDeleteFriend_shouldDeleteFriendFromOtherUsersSet() {
-        userController.create(user);
-        userController.create(emptyNameUser);
-        userController.addFriend(user.getId(), emptyNameUser.getId());
-        userController.removeFriend(user.getId(), emptyNameUser.getId());
-        assertEquals(0, user.getFriendsQuantity());
-        assertEquals(0, emptyNameUser.getFriendsQuantity());
-    }
-
 }

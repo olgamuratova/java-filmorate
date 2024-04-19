@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.service.impl.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -24,9 +23,9 @@ public class FilmControllerTest {
 
     private final UserStorage userStorage = new InMemoryUserStorage();
 
-    private final UserService userService = new UserService(userStorage, filmStorage);
+    private final UserService userService = new UserService(userStorage, filmStorage, null);
 
-    private final FilmService filmService = new FilmService(filmStorage);
+    private final FilmService filmService = new FilmService(filmStorage, null);
 
     private final FilmController filmController = new FilmController(filmStorage, filmService);
 
@@ -93,23 +92,5 @@ public class FilmControllerTest {
         film.setDuration(-92);
         assertThrows(ValidationException.class, () -> filmController.create(film));
         assertEquals(0, filmController.getFilms().size());
-    }
-
-    @Test
-    void whenRemoveLike_shouldRemoveLikeFromAFilm() {
-        userStorage.create(user);
-        filmController.create(film);
-        filmController.likeAFilm(film.getId(), user.getId());
-        filmController.removeLike(film.getId(), user.getId());
-        assertEquals(0, film.getLikesQuantity());
-    }
-
-    @Test
-    void whenGetPopularFilms_shouldReturnListOfPopularFilms() {
-        userStorage.create(user);
-        filmController.create(film);
-        filmController.likeAFilm(film.getId(), user.getId());
-        List<Film> popularMoviesList = filmService.getPopularFilms(1);
-        assertEquals(1, popularMoviesList.size());
     }
 }

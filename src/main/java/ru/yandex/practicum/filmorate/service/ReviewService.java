@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.db.ReviewStorage;
+import ru.yandex.practicum.filmorate.db.impl.FeedDbStorage;
 import ru.yandex.practicum.filmorate.db.impl.FilmDbStorage;
 import ru.yandex.practicum.filmorate.db.impl.UserDbStorage;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
@@ -21,6 +22,7 @@ public class ReviewService {
     private final ReviewStorage reviewStorage;
     private final FilmDbStorage filmDbStorage;
     private final UserDbStorage userDbStorage;
+    private final FeedDbStorage feedStorage;
 
     public Review getReviewById(long id) {
         return reviewStorage.getReviewById(id);
@@ -29,16 +31,28 @@ public class ReviewService {
     public Review addReview(Review review) {
         filmDbStorage.getById(Math.toIntExact(review.getFilmId()));
         userDbStorage.getById(Math.toIntExact(review.getUserId()));
-        return reviewStorage.addReview(review);
+        Review rev = reviewStorage.addReview(review);
+        log.info("Запись события в таблицу аудита");
+        feedStorage.addFeed("REVIEW", "ADD", (int) (long) review.getUserId(), (int) (long) review.getReviewId());
+        log.info("Информация успешно сохранена");
+        return rev;
     }
 
     public Review updateReview(Review review) {
-        getReviewById(review.getReviewId());
-        return reviewStorage.updateReview(review);
+        int userId = (int) (long) reviewStorage.getReviewById(review.getReviewId()).getUserId();
+        Review newRev = reviewStorage.updateReview(review);
+        log.info("Запись события в таблицу аудита");
+        feedStorage.addFeed("REVIEW", "UPDATE", userId, (int) (long) review.getReviewId());
+        log.info("Информация успешно сохранена");
+        return newRev;
     }
 
     public void deleteReviewById(long id) {
+        long userId = reviewStorage.getReviewById(id).getUserId();
         reviewStorage.deleteReviewById(id);
+        log.info("Запись события в таблицу аудита");
+        feedStorage.addFeed("REVIEW", "REMOVE", (int) (long) userId, (int) (long) id);
+        log.info("Информация успешно сохранена");
     }
 
     public void addReviewLike(long reviewId, long userId) {
