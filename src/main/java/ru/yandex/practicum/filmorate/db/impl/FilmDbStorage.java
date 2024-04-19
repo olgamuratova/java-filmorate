@@ -268,6 +268,12 @@ public class FilmDbStorage implements FilmStorage {
         return result;
     }
 
+    @Override
+    public void deleteFilm(Integer id) {
+        String sql = "delete from films where film_id = ?";
+        jdbcTemplate.update(sql, id);
+    }
+
     private void addExtraInfoToFilms(List<Film> films) {
         for (Film film : films) {
             Mpa mpa = mpaDbStorage.getById(film.getMpa().getId());

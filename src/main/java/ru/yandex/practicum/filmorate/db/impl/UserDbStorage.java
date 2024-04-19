@@ -102,6 +102,12 @@ public class UserDbStorage implements UserStorage {
         return new HashSet<>(jdbcTemplate.queryForList(query, Integer.class, userId));
     }
 
+    @Override
+    public void deleteUser(Integer id) {
+        String sql = "delete from users where user_id = ?";
+        jdbcTemplate.update(sql, id);
+    }
+
     private void validateUser(User user) {
         if (user.getEmail().isBlank() || !user.getEmail().contains("@")) {
             throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
