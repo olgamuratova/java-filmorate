@@ -31,7 +31,7 @@ public class UserController {
     private final UserService userService;
 
     @Autowired
-    public UserController(@Qualifier("userDbStorage")UserStorage userStorage,
+    public UserController(@Qualifier("userDbStorage") UserStorage userStorage,
                           UserService userService) {
         this.userStorage = userStorage;
         this.userService = userService;
@@ -51,6 +51,12 @@ public class UserController {
     public List<User> getUsers() {
         return userStorage.getUsers();
     }
+
+    @DeleteMapping("/{id}")
+    void deleteUser(@PathVariable Integer id) {
+        userStorage.deleteUser(id);
+    }
+
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Integer id) {

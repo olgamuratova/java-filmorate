@@ -72,6 +72,11 @@ public class InMemoryUserStorage implements UserStorage {
         return null;
     }
 
+    @Override
+    public void deleteUser(Integer id) {
+
+    }
+
     private void validateUser(User user) {
         if (user.getEmail().isBlank() || !user.getEmail().contains("@")) {
             throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
