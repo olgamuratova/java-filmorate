@@ -17,7 +17,12 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -272,6 +277,25 @@ public class FilmDbStorage implements FilmStorage {
     public void deleteFilm(Integer id) {
         String sql = "delete from films where film_id = ?";
         jdbcTemplate.update(sql, id);
+    }
+
+    @Override
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        String sqlQuery = "SELECT f.*, COUNT(l.user_id) AS likes_count " +
+                "FROM films f " +
+                "JOIN likes l ON f.film_id = l.film_id " +
+                "JOIN ( " +
+                "    SELECT DISTINCT f.film_id " +
+                "    FROM films f " +
+                "    JOIN likes l1 ON f.film_id = l1.film_id " +
+                "    JOIN likes l2 ON l1.film_id = l2.film_id " +
+                "    WHERE l1.user_id = ? AND l2.user_id = ? " +
+                ") AS common_films ON f.film_id = common_films.film_id " +
+                "GROUP BY f.film_id " +
+                "ORDER BY likes_count DESC ";
+        List<Film> result = jdbcTemplate.query(sqlQuery, new FilmMapper(), userId, friendId);
+        addExtraInfoToFilms(result);
+        return result;
     }
 
     private void addExtraInfoToFilms(List<Film> films) {

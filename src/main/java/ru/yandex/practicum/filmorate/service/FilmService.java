@@ -49,6 +49,12 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        List<Film> resultList;
+        resultList = filmStorage.getCommonFilms(userId, friendId);
+        return resultList;
+    }
+
     public List<Film> getFilmsByQuery(String query, String type) {
         return filmStorage.getFilmsByQuery(query, type);
     }
