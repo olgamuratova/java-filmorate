@@ -2,10 +2,11 @@ package ru.yandex.practicum.filmorate.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.FilmStorage;
+import ru.yandex.practicum.filmorate.db.FilmStorage;
 import ru.yandex.practicum.filmorate.exception.InternalServiceException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
@@ -51,6 +52,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> getFilmsByQuery(String query, String type) {
+        return null;
+    }
+
+    @Override
     public Film getById(Integer id) {
         Film film = films.get(id);
         if (film == null) {
@@ -91,6 +97,46 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public void deleteGenres(int filmId) {
+
+    }
+
+    @Override
+    public List<Film> getFilmsOfDirector(Integer directorId, String[] sortBy) {
+        return null;
+    }
+
+    @Override
+    public void addDirectors(int filmId, List<Director> directors) {
+
+    }
+
+    @Override
+    public void updateDirectors(int filmId, List<Director> directors) {
+
+    }
+
+    @Override
+    public List<Director> getDirectors(int filmId) {
+        return null;
+    }
+
+    @Override
+    public void deleteDirectors(int filmId) {
+
+    }
+
+    @Override
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        return null;
+    }
+
+    @Override
+    public List<Film> getRecommendedFilms(int userId) {
+        return null;
+    }
+
+    @Override
+    public void deleteFilm(Integer id) {
 
     }
 

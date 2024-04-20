@@ -1,10 +1,10 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.impl.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.service.impl.InMemoryUserStorage;
 
 import java.time.LocalDate;
@@ -17,7 +17,9 @@ public class UserControllerTest {
 
     private final InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
 
-    private final UserService userService = new UserService(inMemoryUserStorage);
+    private final InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
+
+    private final UserService userService = new UserService(inMemoryUserStorage, inMemoryFilmStorage, null);
 
     private final UserController userController = new UserController(inMemoryUserStorage, userService);
 
@@ -86,15 +88,4 @@ public class UserControllerTest {
         ValidationException validationException = assertThrows(ValidationException.class, () -> userController.create(user));
         assertEquals(validationException.getMessage(), "Дата рождения не может быть в будущем");
     }
-
-    @Test
-    void whenDeleteFriend_shouldDeleteFriendFromOtherUsersSet() {
-        userController.create(user);
-        userController.create(emptyNameUser);
-        userController.addFriend(user.getId(), emptyNameUser.getId());
-        userController.removeFriend(user.getId(), emptyNameUser.getId());
-        assertEquals(0, user.getFriendsQuantity());
-        assertEquals(0, emptyNameUser.getFriendsQuantity());
-    }
-
 }

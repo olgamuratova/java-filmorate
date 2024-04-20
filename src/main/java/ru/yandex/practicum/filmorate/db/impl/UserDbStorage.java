@@ -1,10 +1,10 @@
-package ru.yandex.practicum.filmorate.impl;
+package ru.yandex.practicum.filmorate.db.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.UserStorage;
+import ru.yandex.practicum.filmorate.db.UserStorage;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
@@ -100,6 +100,12 @@ public class UserDbStorage implements UserStorage {
         getById(userId);
         String query = "SELECT friend_id FROM friends WHERE user_id = ?";
         return new HashSet<>(jdbcTemplate.queryForList(query, Integer.class, userId));
+    }
+
+    @Override
+    public void deleteUser(Integer id) {
+        String sql = "delete from users where user_id = ?";
+        jdbcTemplate.update(sql, id);
     }
 
     private void validateUser(User user) {

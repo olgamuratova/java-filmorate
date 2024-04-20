@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate;
+package ru.yandex.practicum.filmorate.db;
 
 import ru.yandex.practicum.filmorate.model.Mpa;
 

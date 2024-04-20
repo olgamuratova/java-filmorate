@@ -4,14 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Friendship {
+public class Director {
 
     private int id;
+    @NotBlank
+    private String name;
 
-    private int friendId;
 
-    private boolean isFriend;
 }

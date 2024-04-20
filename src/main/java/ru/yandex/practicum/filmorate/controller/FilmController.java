@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.FilmStorage;
+import ru.yandex.practicum.filmorate.db.FilmStorage;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -50,14 +50,26 @@ public class FilmController {
         return filmStorage.getFilms();
     }
 
+    @DeleteMapping("/{id}")
+    void deleteFilm(@PathVariable Integer id) {
+        filmStorage.deleteFilm(id);
+    }
+
     @GetMapping("/{id}")
     public Film getFilmById(@PathVariable Integer id) {
         return filmStorage.getById(id);
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularMovies(@RequestParam(defaultValue = "10") Integer count) {
-        return filmService.getPopularFilms(count);
+    public List<Film> getPopularMovies(@RequestParam(defaultValue = "10") Integer count,
+                                       @RequestParam(value = "genreId", required = false) Integer genreId,
+                                       @RequestParam(value = "year", required = false) Integer year) {
+        return filmService.getPopularFilms(count, genreId, year);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getFilmsOfDirector(@PathVariable Integer directorId, @RequestParam String[] sortBy) {
+        return filmStorage.getFilmsOfDirector(directorId, sortBy);
     }
 
     @PutMapping("/{id}/like/{userId}")
@@ -68,5 +80,19 @@ public class FilmController {
     @DeleteMapping("/{id}/like/{userId}")
     public void removeLike(@PathVariable Integer id, @PathVariable Integer userId) {
         filmService.deleteLike(id, userId);
+    }
+
+    @GetMapping("/search")
+    public List<Film> getFilmsByQuery(@RequestParam("query") String query, @RequestParam("by") String type) {
+        return filmService.getFilmsByQuery(query, type);
+    }
+
+    @GetMapping("/common")
+    public List<Film> getCommonFilms(@RequestParam int userId,
+                                     @RequestParam int friendId) {
+        log.info("Получен запрос на составление списка общих фильмов, срели пользвателей с id {}, {}", userId, friendId);
+        List<Film> getCommonFilms = filmService.getCommonFilms(userId, friendId);
+        log.info("Список общих фильмов получен");
+        return getCommonFilms;
     }
 }
