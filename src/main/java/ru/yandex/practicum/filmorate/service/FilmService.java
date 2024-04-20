@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.db.FilmStorage;
 import ru.yandex.practicum.filmorate.db.impl.FeedDbStorage;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.Comparator;
 import java.util.List;
@@ -39,14 +40,25 @@ public class FilmService {
         log.info("Информация успешно сохранена");
     }
 
-    public List<Film> getPopularFilms(Integer count) {
+    public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
         return filmStorage.getFilms().stream()
                 .sorted(Comparator.comparingInt(filmStorage::getLikesQuantity).reversed())
+                .filter(film -> (genreId == null || hasGenre(film, genreId))
+                        && (year == null || film.getReleaseDate().getYear() == year))
                 .limit(count)
                 .collect(Collectors.toList());
     }
 
     public List<Film> getFilmsByQuery(String query, String type) {
         return filmStorage.getFilmsByQuery(query, type);
+    }
+
+    private Boolean hasGenre(Film film, Integer genreId) {
+        for (Genre genre : film.getGenres()) {
+            if (genre.getId() == genreId) {
+                return true;
+            }
+        }
+        return false;
     }
 }
